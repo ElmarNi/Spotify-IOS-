@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EB0091F82A0185300071E0E1 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0091F72A0185300071E0E1 /* Extensions.swift */; };
+		EB0091FC2A01A87F0071E0E1 /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0091FB2A01A87F0071E0E1 /* AuthResponse.swift */; };
 		EB54757029FFA9EF0031BB5B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB54756F29FFA9EF0031BB5B /* AppDelegate.swift */; };
 		EB54757229FFA9EF0031BB5B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB54757129FFA9EF0031BB5B /* SceneDelegate.swift */; };
 		EB54757429FFA9EF0031BB5B /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB54757329FFA9EF0031BB5B /* HomeViewController.swift */; };
@@ -32,6 +34,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EB0091F72A0185300071E0E1 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		EB0091FB2A01A87F0071E0E1 /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
 		EB54756C29FFA9EF0031BB5B /* Spotify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spotify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB54756F29FFA9EF0031BB5B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EB54757129FFA9EF0031BB5B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -106,6 +110,7 @@
 				EB69805329FFE50100AB4D9D /* AudioTrack.swift */,
 				EB69805529FFE50B00AB4D9D /* Artist.swift */,
 				EB69805729FFE51600AB4D9D /* UserProfile.swift */,
+				EB0091FB2A01A87F0071E0E1 /* AuthResponse.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -150,6 +155,7 @@
 				EB54757829FFA9F00031BB5B /* Assets.xcassets */,
 				EB54756F29FFA9EF0031BB5B /* AppDelegate.swift */,
 				EB54757129FFA9EF0031BB5B /* SceneDelegate.swift */,
+				EB0091F72A0185300071E0E1 /* Extensions.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -257,11 +263,13 @@
 				EB69803229FFB0A600AB4D9D /* LibraryViewController.swift in Sources */,
 				EB69805029FFE4DE00AB4D9D /* HapticsManager.swift in Sources */,
 				EB54757029FFA9EF0031BB5B /* AppDelegate.swift in Sources */,
+				EB0091FC2A01A87F0071E0E1 /* AuthResponse.swift in Sources */,
 				EB69805429FFE50100AB4D9D /* AudioTrack.swift in Sources */,
 				EB69803D29FFE41600AB4D9D /* AuthViewController.swift in Sources */,
 				EB69805229FFE4F900AB4D9D /* PlayList.swift in Sources */,
 				EB69803029FFB09A00AB4D9D /* SearchViewController.swift in Sources */,
 				EB69805829FFE51600AB4D9D /* UserProfile.swift in Sources */,
+				EB0091F82A0185300071E0E1 /* Extensions.swift in Sources */,
 				EB69803429FFB0C100AB4D9D /* TabBarViewController.swift in Sources */,
 				EB69805629FFE50B00AB4D9D /* Artist.swift in Sources */,
 				EB69804829FFE45900AB4D9D /* PlayListViewController.swift in Sources */,
@@ -412,8 +420,8 @@
 				INFOPLIST_FILE = Spotify/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIRequiresFullScreen = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -439,8 +447,8 @@
 				INFOPLIST_FILE = Spotify/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIRequiresFullScreen = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
