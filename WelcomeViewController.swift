@@ -16,6 +16,7 @@ class WelcomeViewController: UIViewController {
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -40,6 +41,7 @@ class WelcomeViewController: UIViewController {
         }
         authViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(authViewController, animated: true)
+        
     }
     
     private func handleSignIn(success: Bool){

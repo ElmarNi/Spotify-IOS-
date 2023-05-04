@@ -27,7 +27,6 @@ class AuthViewController: UIViewController, WKNavigationDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "Sign In"
         view.backgroundColor = .systemBackground
         
         webView.navigationDelegate = self
@@ -49,6 +48,8 @@ class AuthViewController: UIViewController, WKNavigationDelegate {
         activityIndicator.center = webView.center
     }
     
+    
+    //MARK: - webView delegate
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         activityIndicator.stopAnimating()
     }
