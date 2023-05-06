@@ -18,22 +18,22 @@ class AuthViewController: UIViewController, WKNavigationDelegate {
         config.defaultWebpagePreferences = preferences
         
         let webView = WKWebView(frame: .zero, configuration: config)
-        
         return webView
     }()
     
-    private let activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView()
+    private let activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.color = .black
+        indicator.startAnimating()
+        return indicator
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        
         webView.navigationDelegate = self
-        
         view.addSubview(webView)
-        
-        activityIndicator.startAnimating()
         webView.addSubview(activityIndicator)
         
         guard let url = AuthManager.shared.signInUrl else { return }

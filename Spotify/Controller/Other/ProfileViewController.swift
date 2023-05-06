@@ -5,6 +5,7 @@
 //  Created by Elmar Ibrahimli on 01.05.23.
 //
 
+import SDWebImage
 import UIKit
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -16,6 +17,12 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         return tableView
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.startAnimating()
+        return indicator
+    }()
+    
     private var models = [String]()
     
     override func viewDidLoad() {
@@ -25,6 +32,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         view.backgroundColor = .systemBackground
         fetchProfileData()
         view.addSubview(tableView)
+        view.addSubview(activityIndicator)
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -32,6 +40,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        activityIndicator.center = view.center
     }
     
     //MARK: - fetching profile data from APICaller
@@ -41,11 +50,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                 switch result{
                 case .success(let model):
                     self?.updateUi(with: model)
-                    break
                 case .failure(let error):
                     print(error.localizedDescription)
                     self?.failedToGetProfileData()
-                    break
                 }
             }
         }
@@ -67,9 +74,32 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     //MARK: - updateing ui
     private func updateUi(with model: UserProfile){
-        tableView.isHidden = false
-        models.append("FullName: \(model.display_name)")
+        models.append("Username: \(model.display_name)")
+        models.append("Email: \(model.email)")
+        models.append("Country: \(model.country)")
+        models.append("Product: \(model.product)")
+        createTableHeader(with: model.images.first?.url)
         tableView.reloadData()
+    }
+    
+    private func createTableHeader(with stringUrl: String?){
+        guard let stringUrl = stringUrl, let url = URL(string: stringUrl) else {return}
+        
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: view.width, height: 130))
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: headerView.height - 20, height: headerView.height - 20))
+        
+        imageView.center = headerView.center
+        imageView.sd_setImage(with: url) {[weak self] _,_,_,_ in
+            self?.tableView.isHidden = false
+            self?.activityIndicator.stopAnimating()
+        }
+        imageView.contentMode = .scaleAspectFit
+        imageView.layer.cornerRadius = imageView.frame.height / 2
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = .red
+        
+        headerView.addSubview(imageView)
+        tableView.tableHeaderView = headerView
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -82,6 +112,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         var content = cell.defaultContentConfiguration()
         content.text = models[indexPath.row]
         cell.contentConfiguration = content
+        cell.preservesSuperviewLayoutMargins = false
+        cell.separatorInset = UIEdgeInsets.zero
+        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
 

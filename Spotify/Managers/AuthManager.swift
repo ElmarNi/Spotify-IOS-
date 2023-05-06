@@ -121,10 +121,10 @@ final class AuthManager{
         }
     }
     
-    public func refreshIfNeeded(completion: @escaping (Bool) -> Void){
+    public func refreshIfNeeded(completion: ((Bool) -> Void)?){
         guard !isRefreshingToken else {return}
         guard shouldRefreshToken else {
-            completion(true)
+            completion?(true)
             return
         }
         guard let refreshToken = self.refreshToken else {return}
@@ -137,7 +137,7 @@ final class AuthManager{
         ]
         isRefreshingToken = true
         postRequestForToken(true, components: components, completion: {success in
-            completion(success)
+            completion?(success)
         })
     }
     

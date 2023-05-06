@@ -20,12 +20,12 @@ class TabBarViewController: UITabBarController {
         super.viewDidLoad()
 
         //MARK: - set tab and nav bars to default bg
-        tabBarAppearance.configureWithDefaultBackground()
-        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-        
-        navBarAppearance.configureWithDefaultBackground()
-        UINavigationBar.appearance().standardAppearance = navBarAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+//        tabBarAppearance.configureWithDefaultBackground()
+//        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+//        
+//        navBarAppearance.configureWithDefaultBackground()
+//        UINavigationBar.appearance().standardAppearance = navBarAppearance
+//        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
         
         //MARK: - set title display mods to controllers
         homeViewController.navigationItem.largeTitleDisplayMode = .never
@@ -46,6 +46,10 @@ class TabBarViewController: UITabBarController {
         homeViewControllerNav.navigationBar.prefersLargeTitles = false
         searchViewControllerNav.navigationBar.prefersLargeTitles = true
         libraryViewControllerNav.navigationBar.prefersLargeTitles = true
+        
+        homeViewControllerNav.navigationBar.tintColor = .label
+        searchViewControllerNav.navigationBar.tintColor = .label
+        libraryViewControllerNav.navigationBar.tintColor = .label
         
         //MARK: - create bar items
         homeViewControllerNav.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 1)

@@ -41,7 +41,6 @@ class WelcomeViewController: UIViewController {
         }
         authViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(authViewController, animated: true)
-        
     }
     
     private func handleSignIn(success: Bool){

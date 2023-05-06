@@ -25,6 +25,7 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
         view.addSubview(tableView)
         tableView.delegate = self
         tableView.dataSource = self
+        
     }
     
     override func viewDidLayoutSubviews() {
@@ -70,6 +71,9 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
         var content = cell.defaultContentConfiguration()
         content.text = model.title
         cell.contentConfiguration = content
+        cell.preservesSuperviewLayoutMargins = false
+        cell.separatorInset = UIEdgeInsets.zero
+        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
     
