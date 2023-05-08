@@ -19,21 +19,21 @@ class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //MARK: - set tab and nav bars to default bg
-//        tabBarAppearance.configureWithDefaultBackground()
+//        //MARK: - set tab and nav bars to default bg
+//        tabBarAppearance.configureWithTransparentBackground()
 //        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
 //        
-//        navBarAppearance.configureWithDefaultBackground()
+//        navBarAppearance.configureWithOpaqueBackground()
 //        UINavigationBar.appearance().standardAppearance = navBarAppearance
 //        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
         
         //MARK: - set title display mods to controllers
-        homeViewController.navigationItem.largeTitleDisplayMode = .never
+        homeViewController.navigationItem.largeTitleDisplayMode = .always
         searchViewController.navigationItem.largeTitleDisplayMode = .always
         libraryViewController.navigationItem.largeTitleDisplayMode = .always
         
         //MARK: - set titles
-        homeViewController.title = "Home"
+        homeViewController.title = "Browse"
         searchViewController.title = "Search"
         libraryViewController.title = "Library"
         
@@ -43,7 +43,7 @@ class TabBarViewController: UITabBarController {
         let libraryViewControllerNav = UINavigationController(rootViewController: libraryViewController)
         
         //MARK: - set navigationControllers title
-        homeViewControllerNav.navigationBar.prefersLargeTitles = false
+        homeViewControllerNav.navigationBar.prefersLargeTitles = true
         searchViewControllerNav.navigationBar.prefersLargeTitles = true
         libraryViewControllerNav.navigationBar.prefersLargeTitles = true
         
@@ -52,7 +52,7 @@ class TabBarViewController: UITabBarController {
         libraryViewControllerNav.navigationBar.tintColor = .label
         
         //MARK: - create bar items
-        homeViewControllerNav.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 1)
+        homeViewControllerNav.tabBarItem = UITabBarItem(title: "Browse", image: UIImage(systemName: "house"), tag: 1)
         searchViewControllerNav.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), tag: 2)
         libraryViewControllerNav.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "music.note.list"), tag: 3)
         

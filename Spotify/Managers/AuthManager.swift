@@ -50,7 +50,6 @@ final class AuthManager{
         
         guard let base64String = (Constants.clientId + ":" + Constants.clientSecret).data(using: .utf8)?.base64EncodedString() else{
             completion(false)
-            print("Failure to get base64")
             return
         }
         
@@ -80,7 +79,6 @@ final class AuthManager{
                 completion(true)
             }
             catch{
-                print(error.localizedDescription)
                 completion(false)
             }
         }).resume()
