@@ -65,7 +65,7 @@ final class APICaller{
     
     //MARK: - get featured playlist
     public func getFeaturedPlaylists(completion: @escaping (Result<FeaturedPlayListResponse, Error>) -> Void){
-        createRequest(with: URL(string: Constants.baseUrl + "/browse/featured-playlists?limit=50"), type: .GET) { request in
+        createRequest(with: URL(string: Constants.baseUrl + "/browse/featured-playlists?limit=20"), type: .GET) { request in
             URLSession.shared.dataTask(with: request) { data, _, error in
                 guard let data = data, error == nil else{
                     completion(.failure(APIError.failedToGetData))

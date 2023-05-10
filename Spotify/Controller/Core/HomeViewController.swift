@@ -9,8 +9,8 @@ import UIKit
 
 enum BrowseSectionType{
     case newReleases(viewModels: [NewReleasesCellViewModel])
-    case featuredPlaylists(viewModels: [NewReleasesCellViewModel])
-    case recommendedTracks(viewModels: [NewReleasesCellViewModel])
+    case featuredPlaylists(viewModels: [FeaturedPlaylistsCellViewModel])
+    case recommendedTracks(viewModels: [RecommendedTracksCellViewModel])
 }
 
 class HomeViewController: UIViewController {
@@ -136,8 +136,17 @@ class HomeViewController: UIViewController {
                                             artistName: $0.artists.first?.name ?? "")
         })))
         
-        sections.append(.featuredPlaylists(viewModels: []))
-        sections.append(.recommendedTracks(viewModels: []))
+        sections.append(.featuredPlaylists(viewModels: playlists.compactMap({
+            return FeaturedPlaylistsCellViewModel(name: $0.name,
+                                                  artworkUrl: URL(string: $0.images.first?.url ?? ""),
+                                                  creatorName: $0.owner.display_name)
+        })))
+        
+        sections.append(.recommendedTracks(viewModels: tracks.compactMap({
+            return RecommendedTracksCellViewModel(name: $0.name,
+                                                  artworkUrl: URL(string: $0.album.images.first?.url ?? ""),
+                                                  artistName: $0.artists.first?.name ?? "")
+        })))
         
         collectionView.reloadData()
     }
@@ -189,7 +198,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             }
             
             let model = viewModels[indexPath.row]
-            
+            cell.configure(with: model)
             return cell
         case .recommendedTracks(let viewModels):
             guard let cell = collectionView.dequeueReusableCell(
@@ -199,7 +208,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             }
             
             let model = viewModels[indexPath.row]
-            
+            cell.configure(with: model)
             return cell
         }
     }
@@ -232,7 +241,6 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             //section
             let section = NSCollectionLayoutSection(group: horizontalGroup)
             section.orthogonalScrollingBehavior = .groupPaging
-            
             return section
         case 1:
             //item
@@ -240,9 +248,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
                 layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .fractionalHeight(1.0)))
-            
             item.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2)
-            
             let verticalGroup = NSCollectionLayoutGroup.vertical(
                 layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
