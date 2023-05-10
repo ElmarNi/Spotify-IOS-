@@ -8,7 +8,7 @@
 import Foundation
 
 struct NewReleasesResponse: Codable{
-    let albums: Album
+    let albums: AlbumsResponse
 }
 struct AlbumsResponse: Codable{
     let items: [Album]
