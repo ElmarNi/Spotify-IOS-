@@ -18,14 +18,6 @@ class TabBarViewController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-//        //MARK: - set tab and nav bars to default bg
-//        tabBarAppearance.configureWithTransparentBackground()
-//        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-//        
-//        navBarAppearance.configureWithOpaqueBackground()
-//        UINavigationBar.appearance().standardAppearance = navBarAppearance
-//        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
         
         //MARK: - set title display mods to controllers
         homeViewController.navigationItem.largeTitleDisplayMode = .always
@@ -42,7 +34,7 @@ class TabBarViewController: UITabBarController {
         let searchViewControllerNav = UINavigationController(rootViewController: searchViewController)
         let libraryViewControllerNav = UINavigationController(rootViewController: libraryViewController)
         
-        //MARK: - set navigationControllers title
+        //MARK: - set navigationControllers title mode and color
         homeViewControllerNav.navigationBar.prefersLargeTitles = true
         searchViewControllerNav.navigationBar.prefersLargeTitles = true
         libraryViewControllerNav.navigationBar.prefersLargeTitles = true

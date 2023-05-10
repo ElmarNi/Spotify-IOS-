@@ -17,6 +17,7 @@ class FeaturedPlaylistCollectionViewCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 4
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -36,12 +37,21 @@ class FeaturedPlaylistCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.tintColor = .label
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
+        return activityIndicator
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.clipsToBounds = true
         contentView.addSubview(playlistCoverImageView)
         contentView.addSubview(playlistNameLabel)
         contentView.addSubview(creatorNameLabel)
+        playlistCoverImageView.addSubview(activityIndicator)
     }
     
     required init?(coder: NSCoder) {
@@ -70,6 +80,8 @@ class FeaturedPlaylistCollectionViewCell: UICollectionViewCell {
                                         y: playlistNameLabel.bottom + 6,
                                         width: contentView.width - 6,
                                         height: creatorNameLabel.height)
+        
+        activityIndicator.frame = CGRect(x: playlistCoverImageView.width / 2, y: playlistCoverImageView.height / 2, width: 0, height: 0)
     }
     
     override func prepareForReuse() {
@@ -82,6 +94,8 @@ class FeaturedPlaylistCollectionViewCell: UICollectionViewCell {
     func configure(with viewModel: FeaturedPlaylistsCellViewModel){
         playlistNameLabel.text = viewModel.name
         creatorNameLabel.text = viewModel.creatorName
-        playlistCoverImageView.sd_setImage(with: viewModel.artworkUrl)
+        playlistCoverImageView.sd_setImage(with: viewModel.artworkUrl) {[weak self] _,_,_,_ in
+            self?.activityIndicator.stopAnimating()
+        }
     }
 }

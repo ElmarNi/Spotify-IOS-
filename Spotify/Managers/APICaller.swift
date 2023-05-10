@@ -24,10 +24,48 @@ final class APICaller{
         case POST
     }
     
-    //MARK: - get current user's profile data
+    //MARK: - Album
+    public func getAlbumDetails(for album: Album, completion: @escaping (Result<AlbumDetailsResponse, Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/albums/" + album.id), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let result = try JSONDecoder().decode(AlbumDetailsResponse.self, from: data)
+                    completion(.success(result))
+                }
+                catch{
+                    completion(.failure(error))
+                }
+            }.resume()
+        }
+    }
+    
+    //MARK: - Playlist
+    public func getPlaylistDetails(for playlist: PlayList, completion: @escaping (Result<PlayListDetailsResponse, Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/playlists/" + playlist.id), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let result = try JSONDecoder().decode(PlayListDetailsResponse.self, from: data)
+                    completion(.success(result))
+                }
+                catch{
+                    completion(.failure(error))
+                }
+            }.resume()
+        }
+    }
+    
+    //MARK: - Profile
     public func getCurrentUserProfile(completion: @escaping (Result<UserProfile, Error>) -> Void){
-        createRequest(with: URL(string: Constants.baseUrl + "/me"), type: .GET) { baserRequest in
-            URLSession.shared.dataTask(with: baserRequest) { data, _, error in
+        createRequest(with: URL(string: Constants.baseUrl + "/me"), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, _, error in
                 guard let data = data, error == nil else{
                     completion(.failure(APIError.failedToGetData))
                     return
@@ -43,7 +81,7 @@ final class APICaller{
         }
     }
     
-    //MARK: - get new releases
+    //MARK: - Browse
     public func getNewReleases(completion: @escaping (Result<NewReleasesResponse, Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/browse/new-releases?limit=50"), type: .GET) { request in
             URLSession.shared.dataTask(with: request) { data, _, error in
@@ -63,7 +101,6 @@ final class APICaller{
         }
     }
     
-    //MARK: - get featured playlist
     public func getFeaturedPlaylists(completion: @escaping (Result<FeaturedPlayListResponse, Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/browse/featured-playlists?limit=20"), type: .GET) { request in
             URLSession.shared.dataTask(with: request) { data, _, error in
@@ -83,7 +120,6 @@ final class APICaller{
         }
     }
     
-    //MARK: - get genres
     public func getGenres(completion: @escaping (Result<GenresResponse, Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/recommendations/available-genre-seeds"), type: .GET) { request in
             URLSession.shared.dataTask(with: request) { data, _, error in
@@ -103,7 +139,6 @@ final class APICaller{
         }
     }
     
-    //MARK: - get recommendations
     public func getRecommendations(genres: Set<String>, completion: @escaping (Result<RecommendationsResponse, Error>) -> Void){
         
         let seeds = genres.joined(separator: ",")

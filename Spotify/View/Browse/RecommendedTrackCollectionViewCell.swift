@@ -14,6 +14,7 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "photo")
         imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -36,6 +37,14 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
         return stackView
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.tintColor = .label
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
+        return activityIndicator
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.clipsToBounds = true
@@ -44,6 +53,7 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
         stackView.addSubview(trackNameLabel)
         stackView.addSubview(artistNameLabel)
         contentView.addSubview(stackView)
+        albumCoverImageView.addSubview(activityIndicator)
     }
     
     required init?(coder: NSCoder) {
@@ -55,7 +65,6 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
         
         trackNameLabel.sizeToFit()
         artistNameLabel.sizeToFit()
-        
         let imageSize = contentView.height - 4
         
         albumCoverImageView.frame = CGRect(x: 5,
@@ -77,6 +86,8 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
                                        y: trackNameLabel.bottom,
                                        width: stackView.width,
                                        height: artistNameLabel.height)
+        
+        activityIndicator.frame = CGRect(x: albumCoverImageView.width / 2, y: albumCoverImageView.height / 2, width: 0, height: 0)
     }
     
     override func prepareForReuse() {
@@ -89,6 +100,8 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
     func configure(with viewModel: RecommendedTracksCellViewModel){
         trackNameLabel.text = viewModel.name
         artistNameLabel.text = viewModel.artistName
-        albumCoverImageView.sd_setImage(with: viewModel.artworkUrl)
+        albumCoverImageView.sd_setImage(with: viewModel.artworkUrl) {[weak self] _,_,_,_ in
+            self?.activityIndicator.stopAnimating()
+        }
     }
 }

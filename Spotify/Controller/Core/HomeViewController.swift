@@ -19,23 +19,28 @@ class HomeViewController: UIViewController {
         frame: .zero,
         collectionViewLayout: UICollectionViewCompositionalLayout(sectionProvider: { sectionIndex, _ -> NSCollectionLayoutSection? in
             return HomeViewController.createSectionLayout(section: sectionIndex)
-        }))
+        })
+    )
     
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView()
         activityIndicator.tintColor = .label
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
         return activityIndicator
     }()
     
     private var sections = [BrowseSectionType]()
     
+    private var newAlbums: [Album] = []
+    private var playlists: [PlayList] = []
+    private var tracks: [AudioTrack] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .systemBackground
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"), style: .done, target: self, action: #selector(didTapSettings))
-        
+        collectionView.isHidden = true
         fetchData()
         configureCollectionView()
         view.addSubview(activityIndicator)
@@ -43,6 +48,8 @@ class HomeViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         collectionView.frame = view.bounds
+        activityIndicator.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        activityIndicator.center = view.center
     }
     
     func configureCollectionView(){
@@ -121,7 +128,9 @@ class HomeViewController: UIViewController {
         dispatchGroup.notify(queue: .main) {
             guard let newAlbums = newReleases?.albums.items,
                   let playlists = featuredPlaylists?.playlists.items,
-                  let tracks = recommendations?.tracks else{
+                  let tracks = recommendations?.tracks
+            else{
+                self.handleError(success: false)
                 return
             }
             self.configureModels(newAlbums: newAlbums, playlists: playlists, tracks: tracks)
@@ -129,6 +138,10 @@ class HomeViewController: UIViewController {
     }
     
     private func configureModels(newAlbums: [Album], playlists: [PlayList], tracks: [AudioTrack]){
+        self.newAlbums = newAlbums
+        self.playlists = playlists
+        self.tracks = tracks
+        
         sections.append(.newReleases(viewModels: newAlbums.compactMap({
             return NewReleasesCellViewModel(name: $0.name,
                                             artworkUrl: URL(string: $0.images.first?.url ?? ""),
@@ -144,11 +157,13 @@ class HomeViewController: UIViewController {
         
         sections.append(.recommendedTracks(viewModels: tracks.compactMap({
             return RecommendedTracksCellViewModel(name: $0.name,
-                                                  artworkUrl: URL(string: $0.album.images.first?.url ?? ""),
+                                                  artworkUrl: URL(string: $0.album?.images.first?.url ?? ""),
                                                   artistName: $0.artists.first?.name ?? "")
         })))
         
         collectionView.reloadData()
+        collectionView.isHidden = false
+        activityIndicator.stopAnimating()
     }
     
     @objc func didTapSettings() {
@@ -210,6 +225,25 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             let model = viewModels[indexPath.row]
             cell.configure(with: model)
             return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let section = sections[indexPath.section]
+        switch section{
+        case .featuredPlaylists:
+            let playlist = playlists[indexPath.row]
+            let playlistViewController = PlayListViewController(playlist: playlist)
+            playlistViewController.navigationItem.largeTitleDisplayMode = .never
+            navigationController?.pushViewController(playlistViewController, animated: true)
+        case .newReleases:
+            let album = newAlbums[indexPath.row]
+            let albumViewController = AlbumViewController(album: album)
+            albumViewController.navigationItem.largeTitleDisplayMode = .never
+            navigationController?.pushViewController(albumViewController, animated: true)
+        case .recommendedTracks:
+            break
         }
     }
     
@@ -310,6 +344,14 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             let section = NSCollectionLayoutSection(group: group)
             
             return section
+        }
+    }
+    private func handleError(success: Bool){
+        guard success else {
+            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting data", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+            present(alert, animated: true)
+            return
         }
     }
 }

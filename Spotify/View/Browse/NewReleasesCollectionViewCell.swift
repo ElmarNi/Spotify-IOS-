@@ -15,13 +15,14 @@ class NewReleasesCollectionViewCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "photo")
         imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         return imageView
     }()
     
     private let albumNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 20, weight: .semibold)
-        label.numberOfLines = 0
+        label.numberOfLines = 2
         return label
     }()
     
@@ -39,6 +40,14 @@ class NewReleasesCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.tintColor = .label
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
+        return activityIndicator
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = .secondarySystemBackground
@@ -47,6 +56,7 @@ class NewReleasesCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(albumNameLabel)
         contentView.addSubview(numberOfTracksLabel)
         contentView.addSubview(artistNameLabel)
+        albumCoverImageView.addSubview(activityIndicator)
     }
     
     required init?(coder: NSCoder) {
@@ -79,6 +89,8 @@ class NewReleasesCollectionViewCell: UICollectionViewCell {
                                       y: albumNameLabel.bottom + 5,
                                       width: contentView.width - albumCoverImageView.right - 20,
                                       height: artistNameLabel.height)
+        
+        activityIndicator.frame = CGRect(x: albumCoverImageView.width / 2, y: albumCoverImageView.height / 2, width: 0, height: 0)
     }
     
     override func prepareForReuse() {
@@ -93,6 +105,8 @@ class NewReleasesCollectionViewCell: UICollectionViewCell {
         albumNameLabel.text = viewModel.name
         artistNameLabel.text = viewModel.artistName
         numberOfTracksLabel.text = "Tracks: \(viewModel.numberOfTracks)"
-        albumCoverImageView.sd_setImage(with: viewModel.artworkUrl)
+        albumCoverImageView.sd_setImage(with: viewModel.artworkUrl) {[weak self] _,_,_,_ in
+            self?.activityIndicator.stopAnimating()
+        }
     }
 }
