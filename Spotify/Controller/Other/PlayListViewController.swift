@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class PlayListViewController: UIViewController {
     
@@ -21,12 +22,7 @@ class PlayListViewController: UIViewController {
         return activityIndicator
     }()
     
-    private var collectionView: UICollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: UICollectionViewCompositionalLayout(sectionProvider: { sectionIndex, _ -> NSCollectionLayoutSection? in
-            return PlayListViewController.createSectionLayout(section: sectionIndex)
-        })
-    )
+    private var collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
     
     init(playlist: PlayList) {
         self.playlist = playlist
@@ -39,9 +35,16 @@ class PlayListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let layout  = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.itemSize = CGSize(width: view.frame.width, height: 60)
+        
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         
         title = playlist.name
         view.backgroundColor = .systemBackground
+        
         view.addSubview(collectionView)
         view.addSubview(activityIndicator)
         
@@ -49,7 +52,12 @@ class PlayListViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(RecommendedTrackCollectionViewCell.self, forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier)
+        collectionView.register(RecommendedTrackCollectionViewCell.self,
+                                forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier)
+
+        collectionView.register(PlaylistHeaderCollectionReusableView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: PlaylistHeaderCollectionReusableView.identifier)
         
         APICaller.shared.getPlaylistDetails(for: playlist) {[weak self] result in
             DispatchQueue.main.async {
@@ -61,9 +69,11 @@ class PlayListViewController: UIViewController {
                             artworkUrl: URL(string: $0.track.album?.images.first?.url ?? ""),
                             artistName: $0.track.artists.first?.name ?? "")
                     })
+                    
                     self?.collectionView.reloadData()
                     self?.collectionView.isHidden = false
                     self?.activityIndicator.stopAnimating()
+                    
                 case .failure(_):
                     self?.handleError(success: false)
                 }
@@ -74,12 +84,10 @@ class PlayListViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         collectionView.frame = view.bounds
-        activityIndicator.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        activityIndicator.center = view.center
     }
 }
 
-extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDelegate{
+extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -100,29 +108,36 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectionView.deselectItem(at: indexPath, animated: true)
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: PlaylistHeaderCollectionReusableView.identifier,
+            for: indexPath) as? PlaylistHeaderCollectionReusableView,
+              kind == UICollectionView.elementKindSectionHeader else{
+            return UICollectionReusableView()
+        }
+        header.configure(with: PlaylistHeaderViewModel(name: playlist.name,
+                                                       description: playlist.description,
+                                                       ownerName: playlist.owner.display_name,
+                                                       artworkUrl: URL(string: playlist.images.first?.url ?? "")))
+        return header
     }
     
-    private static func createSectionLayout(section: Int) -> NSCollectionLayoutSection? {
-        //item
-        let item = NSCollectionLayoutItem(
-            layoutSize: NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .fractionalHeight(1.0)))
-        item.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2)
-        //group
-        let verticalGroup = NSCollectionLayoutGroup.vertical(
-            layoutSize: NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(80)),
-            repeatingSubitem: item,
-            count: 1)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
-        //section
-        let section = NSCollectionLayoutSection(group: verticalGroup)
+        var descriptionLabelHeight = playlist.description.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .regular))
+        var nameLabelHeight = playlist.name.getHeightForLabel(font: UIFont.systemFont(ofSize: 22, weight: .semibold))
+        var ownerNameLabelHeight = playlist.owner.display_name.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .light))
         
-        return section
+        if descriptionLabelHeight <= 0 { descriptionLabelHeight = 50 }
+        if nameLabelHeight <= 0 { nameLabelHeight = 20 }
+        if ownerNameLabelHeight <= 0 { ownerNameLabelHeight = 20 }
+        
+        return CGSize(width: view.width, height: (view.width / 1.5) + (nameLabelHeight + descriptionLabelHeight + ownerNameLabelHeight) + 70)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
     }
     
     private func handleError(success: Bool){

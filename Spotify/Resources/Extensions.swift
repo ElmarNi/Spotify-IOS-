@@ -33,3 +33,12 @@ extension UIView{
         return top + height
     }
 }
+
+extension String {
+    func getHeightForLabel(font: UIFont) -> CGFloat {
+        let constraintRect = CGSize(width: UIScreen.main.bounds.width, height: CGFloat.greatestFiniteMagnitude)
+        let boundingBox = self.boundingRect(with: constraintRect, options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+
+        return boundingBox.height
+    }
+}
