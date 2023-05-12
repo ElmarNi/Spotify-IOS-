@@ -1,21 +1,21 @@
 //
-//  PlaylistHeaderCollectionReusableView.swift
+//  AlbumHeaderCollectionReusableView.swift
 //  Spotify
 //
-//  Created by Elmar Ibrahimli on 11.05.23.
+//  Created by Elmar Ibrahimli on 12.05.23.
 //
 
 import UIKit
 import SDWebImage
 
-protocol PlaylistHeaderCollectionReusableViewDelegate: AnyObject{
-    func playlistHeaderCollectionReusableViewDidTapPlay(_ header: PlaylistHeaderCollectionReusableView)
+protocol AlbumHeaderCollectionReusableViewDelegate: AnyObject{
+    func albumHeaderCollectionReusableViewDidTapPlay(_ header: AlbumHeaderCollectionReusableView)
 }
 
-class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
-    static let identifier = "PlaylistHeaderCollectionReusableView"
+class AlbumHeaderCollectionReusableView: UICollectionReusableView {
+    static let identifier = "AlbumHeaderCollectionReusableView"
     
-    weak var delegate: PlaylistHeaderCollectionReusableViewDelegate?
+    weak var delegate: AlbumHeaderCollectionReusableViewDelegate?
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -24,17 +24,17 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         return label
     }()
     
-    private let descriptionLabel: UILabel = {
+    private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .regular)
+        label.font = .systemFont(ofSize: 16, weight: .light)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
     }()
     
-    private let ownerNameLabel: UILabel = {
+    private let artistNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .light)
+        label.font = .systemFont(ofSize: 18, weight: .medium)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -69,8 +69,8 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         backgroundColor = .systemBackground
         
         stackView.addSubview(nameLabel)
-        stackView.addSubview(descriptionLabel)
-        stackView.addSubview(ownerNameLabel)
+        stackView.addSubview(dateLabel)
+        stackView.addSubview(artistNameLabel)
         stackView.addSubview(playButton)
         
         addSubview(stackView)
@@ -84,41 +84,41 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
     }
     
     @objc func didTapPlay(){
-        delegate?.playlistHeaderCollectionReusableViewDidTapPlay(self)
+        delegate?.albumHeaderCollectionReusableViewDidTapPlay(self)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        descriptionLabel.sizeToFit()
+        dateLabel.sizeToFit()
         nameLabel.sizeToFit()
-        ownerNameLabel.sizeToFit()
+        artistNameLabel.sizeToFit()
         stackView.sizeToFit()
         
         let imageSize: CGFloat = width / 1.5
         
-        let descriptionLabelHeight = descriptionLabel.text?.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .regular),
-                                                                              width: (width - 80)) ?? 50
+        let dateLabelHeight = dateLabel.text?.getHeightForLabel(font: UIFont.systemFont(ofSize: 16, weight: .regular),
+                                                                              width: (width - 80)) ?? 20
         
         let nameLabelHeight = nameLabel.text?.getHeightForLabel(font: UIFont.systemFont(ofSize: 22, weight: .semibold),
                                                                 width: (width - 80)) ?? 20
         
-        let ownerNameLabelHeight = ownerNameLabel.text?.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .light),
+        let artistNameLabelHeight = artistNameLabel.text?.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .light),
                                                                           width: (width - 80)) ?? 20
 
         coverImageView.frame = CGRect(x: (width - imageSize) / 2, y: 20, width: imageSize, height: imageSize)
         
-        stackView.frame = CGRect(x: 0, y: coverImageView.bottom + 10, width: width, height: (descriptionLabelHeight + nameLabelHeight + ownerNameLabelHeight + 20))
+        stackView.frame = CGRect(x: 0, y: coverImageView.bottom + 10, width: width, height: (dateLabelHeight + nameLabelHeight + dateLabelHeight + 20))
         
         nameLabel.frame = CGRect(x: 10, y: 0, width: width - 80, height: nameLabelHeight)
-        descriptionLabel.frame = CGRect(x: 10, y: nameLabel.bottom + 10, width: width - 80, height: descriptionLabelHeight)
-        ownerNameLabel.frame = CGRect(x: 10, y: descriptionLabel.bottom + 10, width: width - 80, height: ownerNameLabelHeight)
+        artistNameLabel.frame = CGRect(x: 10, y: nameLabel.bottom + 10, width: width - 80, height: artistNameLabelHeight)
+        dateLabel.frame = CGRect(x: 10, y: artistNameLabel.bottom + 10, width: width - 80, height: dateLabelHeight)
         playButton.frame = CGRect(x: stackView.width - 60, y: (stackView.height - 50) / 2, width: 50, height: 50)
     }
     
-    func configure(with viewModel: PlaylistHeaderViewModel){
+    func configure(with viewModel: AlbumHeaderViewModel){
         nameLabel.text = viewModel.name
-        ownerNameLabel.text = viewModel.ownerName
-        descriptionLabel.text = viewModel.description
+        artistNameLabel.text = viewModel.artistName
+        dateLabel.text = viewModel.date
         coverImageView.sd_setImage(with: viewModel.artworkUrl)
     }
 }

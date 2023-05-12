@@ -79,19 +79,25 @@ class PlayListViewController: UIViewController {
                 }
             }
         }
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         collectionView.frame = view.bounds
+        activityIndicator.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        activityIndicator.center = view.center
+    }
+    
+    @objc func didTapShare(){
+        guard let url = URL(string: playlist.external_urls["spotify"] ?? "") else { return }
+        let activityController = UIActivityViewController(activityItems: [url], applicationActivities: [])
+        activityController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        present(activityController, animated: true)
     }
 }
 
-extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
+extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, PlaylistHeaderCollectionReusableViewDelegate{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModels.count
@@ -120,14 +126,23 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
                                                        description: playlist.description,
                                                        ownerName: playlist.owner.display_name,
                                                        artworkUrl: URL(string: playlist.images.first?.url ?? "")))
+        header.delegate = self
+        
         return header
+    }
+    
+    func playlistHeaderCollectionReusableViewDidTapPlay(_ header: PlaylistHeaderCollectionReusableView) {
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
-        var descriptionLabelHeight = playlist.description.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .regular))
-        var nameLabelHeight = playlist.name.getHeightForLabel(font: UIFont.systemFont(ofSize: 22, weight: .semibold))
-        var ownerNameLabelHeight = playlist.owner.display_name.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .light))
+        var descriptionLabelHeight = playlist.description.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .regular),
+                                                                            width: (UIScreen.main.bounds.width - 80))
+        var nameLabelHeight = playlist.name.getHeightForLabel(font: UIFont.systemFont(ofSize: 22, weight: .semibold),
+                                                              width: (UIScreen.main.bounds.width - 80))
+        var ownerNameLabelHeight = playlist.owner.display_name.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .light),
+                                                                                 width: (UIScreen.main.bounds.width - 80))
         
         if descriptionLabelHeight <= 0 { descriptionLabelHeight = 50 }
         if nameLabelHeight <= 0 { nameLabelHeight = 20 }
