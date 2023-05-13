@@ -24,6 +24,44 @@ final class APICaller{
         case POST
     }
     
+    //MARK: - Category
+    public func getCategories(completion: @escaping (Result<[Category], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/browse/categories?limit=50"), type: .GET, completion: {request in
+            URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let result = try JSONDecoder().decode(CategoriesResponse.self, from: data)
+                    completion(.success(result.categories.items))
+                }
+                catch{
+                    completion(.failure(error))
+                }
+            }.resume()
+        })
+    }
+
+    public func getCategoryPlaylists(category: Category, completion: @escaping (Result<[PlayList], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/browse/categories/\(category.id)/playlists?limit=2"), type: .GET, completion: {
+            request in
+            URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let result = try JSONDecoder().decode(FeaturedPlayListResponse.self, from: data)
+                    completion(.success(result.playlists.items))
+                }
+                catch{
+                    completion(.failure(error))
+                }
+            }.resume()
+        })
+    }
+    
     //MARK: - Album
     public func getAlbumDetails(for album: Album, completion: @escaping (Result<AlbumDetailsResponse, Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/albums/" + album.id), type: .GET) { request in

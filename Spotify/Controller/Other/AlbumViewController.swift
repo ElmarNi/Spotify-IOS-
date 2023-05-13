@@ -156,7 +156,7 @@ extension AlbumViewController: UICollectionViewDataSource, UICollectionViewDeleg
     
     private func handleError(success: Bool){
         guard success else {
-            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting album data", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting data", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: {[weak self] _ in
                 self?.navigationController?.popViewController(animated: true)
             }))
