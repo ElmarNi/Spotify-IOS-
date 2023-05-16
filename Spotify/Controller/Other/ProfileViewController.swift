@@ -30,11 +30,16 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         title = "Profile"
         view.backgroundColor = .systemBackground
-        fetchProfileData()
+        
         view.addSubview(tableView)
         view.addSubview(activityIndicator)
         tableView.delegate = self
         tableView.dataSource = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchProfileData()
     }
     
     override func viewDidLayoutSubviews() {
@@ -50,8 +55,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                 switch result{
                 case .success(let model):
                     self?.updateUi(with: model)
-                case .failure(let error):
-                    print(error.localizedDescription)
+                case .failure(_):
                     self?.failedToGetProfileData()
                 }
             }

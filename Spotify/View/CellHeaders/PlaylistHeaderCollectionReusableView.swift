@@ -64,6 +64,14 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         return stackView
     }()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView()
+        activityIndicator.tintColor = .label
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
+        return activityIndicator
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemBackground
@@ -75,6 +83,7 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         
         addSubview(stackView)
         addSubview(coverImageView)
+        coverImageView.addSubview(activityIndicator)
         
         playButton.addTarget(self, action: #selector(didTapPlay), for: .touchUpInside)
     }
@@ -106,19 +115,20 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
                                                                           width: (width - 80)) ?? 20
 
         coverImageView.frame = CGRect(x: (width - imageSize) / 2, y: 20, width: imageSize, height: imageSize)
-        
         stackView.frame = CGRect(x: 0, y: coverImageView.bottom + 10, width: width, height: (descriptionLabelHeight + nameLabelHeight + ownerNameLabelHeight + 20))
-        
         nameLabel.frame = CGRect(x: 10, y: 0, width: width - 80, height: nameLabelHeight)
         descriptionLabel.frame = CGRect(x: 10, y: nameLabel.bottom + 10, width: width - 80, height: descriptionLabelHeight)
         ownerNameLabel.frame = CGRect(x: 10, y: descriptionLabel.bottom + 10, width: width - 80, height: ownerNameLabelHeight)
         playButton.frame = CGRect(x: stackView.width - 60, y: (stackView.height - 50) / 2, width: 50, height: 50)
+        activityIndicator.frame = CGRect(x: coverImageView.width / 2, y: coverImageView.height / 2, width: 0, height: 0)
     }
     
     func configure(with viewModel: PlaylistHeaderViewModel){
         nameLabel.text = viewModel.name
         ownerNameLabel.text = viewModel.ownerName
         descriptionLabel.text = viewModel.description
-        coverImageView.sd_setImage(with: viewModel.artworkUrl)
+        coverImageView.sd_setImage(with: viewModel.artworkUrl){[weak self] _,_,_,_ in
+            self?.activityIndicator.stopAnimating()
+        }
     }
 }

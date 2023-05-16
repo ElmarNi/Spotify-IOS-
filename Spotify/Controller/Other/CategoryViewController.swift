@@ -58,8 +58,10 @@ class CategoryViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         collectionView.register(FeaturedPlaylistCollectionViewCell.self, forCellWithReuseIdentifier: FeaturedPlaylistCollectionViewCell.identifier)
+        
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.isHidden = true
         
         view.addSubview(collectionView)
         view.addSubview(activityIndicator)
@@ -70,6 +72,7 @@ class CategoryViewController: UIViewController {
                 case .success(let model):
                     self?.playlists = model
                     self?.collectionView.reloadData()
+                    self?.collectionView.isHidden = false
                     self?.activityIndicator.stopAnimating()
                 case .failure(_):
                     self?.handleError(success: false)

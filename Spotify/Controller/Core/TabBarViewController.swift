@@ -12,9 +12,6 @@ class TabBarViewController: UITabBarController {
     let homeViewController = HomeViewController()
     let searchViewController = SearchViewController()
     let libraryViewController = LibraryViewController()
-    //MARK: - create appearances
-    let tabBarAppearance = UITabBarAppearance()
-    let navBarAppearance = UINavigationBarAppearance()
     
     override func viewDidLoad() {
         super.viewDidLoad()

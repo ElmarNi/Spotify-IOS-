@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 
 class SearchViewController: UIViewController {
 
@@ -13,7 +14,6 @@ class SearchViewController: UIViewController {
     
     private let searchController: UISearchController = {
         let resultController = SearchResultViewController()
-        
         let searchController = UISearchController(searchResultsController: resultController)
         searchController.searchBar.placeholder = "Songs, Artists, Albums"
         searchController.searchBar.searchBarStyle = .minimal
@@ -54,7 +54,7 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
-        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
         navigationItem.searchController = searchController
         
         collectionView.register(CategoryCollectionViewCell.self, forCellWithReuseIdentifier: CategoryCollectionViewCell.identifier)
@@ -87,15 +87,37 @@ class SearchViewController: UIViewController {
     
 }
 
-extension SearchViewController: UISearchResultsUpdating, UICollectionViewDataSource, UICollectionViewDelegate{
+extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate, SearchResultViewControllerDelegate{
     
-    func updateSearchResults(for searchController: UISearchController) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         guard let resultController = searchController.searchResultsController as? SearchResultViewController,
-              let query = searchController.searchBar.text,
+              searchText.isEmpty
+        else{
+            return
+        }
+        
+        resultController.clear()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let resultController = searchController.searchResultsController as? SearchResultViewController,
+              let query = searchBar.text,
               !query.trimmingCharacters(in: .whitespaces).isEmpty else{
             return
         }
-        print(query)
+
+        resultController.delegate = self
+
+        APICaller.shared.search(with: query) {[weak self] resul in
+            DispatchQueue.main.async {
+                switch resul{
+                case .success(let results):
+                    resultController.update(with: results)
+                case .failure(_):
+                    self?.handleError(success: false)
+                }
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -122,6 +144,33 @@ extension SearchViewController: UISearchResultsUpdating, UICollectionViewDataSou
         let categoryViewController = CategoryViewController(category: category)
         categoryViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(categoryViewController, animated: true)
+    }
+    
+    func didTapResult(_ result: SearchResult) {
+        switch result{
+        case .album(let model):
+            
+            let albumViewController = AlbumViewController(album: model)
+            navigationController?.pushViewController(albumViewController, animated: true)
+            albumViewController.navigationItem.largeTitleDisplayMode = .never
+            
+        case .track(let model):
+            break
+        case .playlist(let model):
+            
+            let playlistViewController = PlayListViewController(playlist: model)
+            navigationController?.pushViewController(playlistViewController, animated: true)
+            playlistViewController.navigationItem.largeTitleDisplayMode = .never
+            
+        case .artist(let model):
+            
+            guard let url = URL(string: model.external_urls["spotify"] ?? "") else{
+                return
+            }
+            let safariViewController = SFSafariViewController(url: url)
+            present(safariViewController, animated: true)
+            
+        }
     }
     
     private func handleError(success: Bool){

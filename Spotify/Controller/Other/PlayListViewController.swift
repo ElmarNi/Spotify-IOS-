@@ -122,6 +122,7 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
               kind == UICollectionView.elementKindSectionHeader else{
             return UICollectionReusableView()
         }
+        
         header.configure(with: PlaylistHeaderViewModel(name: playlist.name,
                                                        description: playlist.description,
                                                        ownerName: playlist.owner.display_name,
@@ -132,7 +133,7 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func playlistHeaderCollectionReusableViewDidTapPlay(_ header: PlaylistHeaderCollectionReusableView) {
-        
+    
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
