@@ -155,7 +155,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             albumViewController.navigationItem.largeTitleDisplayMode = .never
             
         case .track(let model):
-            break
+            PlaybackPresenter.shared.startPlayback(from: self, track: model)
         case .playlist(let model):
             
             let playlistViewController = PlayListViewController(playlist: model)

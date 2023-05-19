@@ -13,11 +13,11 @@ struct PlayListDetailsResponse:Codable{
     let id: String
     let images: [APIImage]
     let name: String
-    let tracks: PlayListTracksResponse
+    var tracks: PlayListTracksResponse
 }
 
 struct PlayListTracksResponse:Codable{
-    let items: [PlayListItem]
+    var items: [PlayListItem]
 }
 
 struct PlayListItem:Codable{

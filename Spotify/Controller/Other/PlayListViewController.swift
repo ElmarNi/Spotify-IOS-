@@ -14,6 +14,8 @@ class PlayListViewController: UIViewController {
     
     private var viewModels = [RecommendedTracksCellViewModel]()
     
+    private var tracks = [AudioTrack]()
+    
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView()
         activityIndicator.tintColor = .label
@@ -63,12 +65,15 @@ class PlayListViewController: UIViewController {
             DispatchQueue.main.async {
                 switch result{
                 case .success(let model):
+                    
                     self?.viewModels = model.tracks.items.compactMap({
                         RecommendedTracksCellViewModel(
                             name: $0.track.name,
                             artworkUrl: URL(string: $0.track.album?.images.first?.url ?? ""),
                             artistName: $0.track.artists.first?.name ?? "")
                     })
+                    
+                    self?.tracks = model.tracks.items.compactMap({ $0.track })
                     
                     self?.collectionView.reloadData()
                     self?.collectionView.isHidden = false
@@ -133,7 +138,7 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func playlistHeaderCollectionReusableViewDidTapPlay(_ header: PlaylistHeaderCollectionReusableView) {
-    
+        PlaybackPresenter.shared.startPlayback(from: self, tracks: self.tracks)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -154,6 +159,7 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        PlaybackPresenter.shared.startPlayback(from: self, track: self.tracks[indexPath.row])
     }
     
     private func handleError(success: Bool){

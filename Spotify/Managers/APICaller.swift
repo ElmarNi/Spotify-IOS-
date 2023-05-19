@@ -72,8 +72,10 @@ final class APICaller{
                 }
                 do{
                     let result = try JSONDecoder().decode(SearchResultResponse.self, from: data)
+                    
                     var searchResults: [SearchResult] = []
-                    searchResults.append(contentsOf: result.tracks.items.compactMap({SearchResult.track(model: $0)}))
+                    
+                    searchResults.append(contentsOf: result.tracks.items.filter({ $0.preview_url != nil }).compactMap({SearchResult.track(model: $0)}))
                     searchResults.append(contentsOf: result.albums.items.compactMap({SearchResult.album(model: $0)}))
                     searchResults.append(contentsOf: result.playlists.items.compactMap({SearchResult.playlist(model: $0)}))
                     searchResults.append(contentsOf: result.artists.items.compactMap({SearchResult.artist(model: $0)}))
@@ -96,7 +98,12 @@ final class APICaller{
                     return
                 }
                 do{
-                    let result = try JSONDecoder().decode(AlbumDetailsResponse.self, from: data)
+                    var result = try JSONDecoder().decode(AlbumDetailsResponse.self, from: data)
+                    
+                    result.tracks.items = result.tracks.items.filter({
+                        $0.preview_url != nil
+                    })
+                    
                     completion(.success(result))
                 }
                 catch{
@@ -115,7 +122,12 @@ final class APICaller{
                     return
                 }
                 do{
-                    let result = try JSONDecoder().decode(PlayListDetailsResponse.self, from: data)
+                    var result = try JSONDecoder().decode(PlayListDetailsResponse.self, from: data)
+                    
+                    result.tracks.items = result.tracks.items.filter({
+                        $0.track.preview_url != nil
+                    })
+                    
                     completion(.success(result))
                 }
                 catch{
@@ -205,7 +217,7 @@ final class APICaller{
     public func getRecommendations(genres: Set<String>, completion: @escaping (Result<RecommendationsResponse, Error>) -> Void){
         
         let seeds = genres.joined(separator: ",")
-        createRequest(with: URL(string: Constants.baseUrl + "/recommendations?limit=40&seed_genres=\(seeds)"), type: .GET, completion: {request in
+        createRequest(with: URL(string: Constants.baseUrl + "/recommendations?limit=100&seed_genres=\(seeds)"), type: .GET, completion: {request in
             URLSession.shared.dataTask(with: request) { data, _, error in
                 guard let data = data, error == nil else{
                     completion(.failure(APIError.failedToGetData))
@@ -213,7 +225,10 @@ final class APICaller{
                 }
                 
                 do{
-                    let result = try JSONDecoder().decode(RecommendationsResponse.self, from: data)
+                    var result = try JSONDecoder().decode(RecommendationsResponse.self, from: data)
+                    result.tracks = result.tracks.filter({
+                        $0.preview_url != nil
+                    })
                     completion(.success(result))
                 }
                 catch{

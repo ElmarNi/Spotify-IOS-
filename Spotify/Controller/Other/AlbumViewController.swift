@@ -12,6 +12,7 @@ class AlbumViewController: UIViewController {
     private let album: Album
     
     private var viewModels = [AlbumCellViewModel]()
+    private var tracks = [AudioTrack]()
     
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView()
@@ -34,7 +35,6 @@ class AlbumViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         title = album.name
         view.backgroundColor = .systemBackground
         
@@ -64,6 +64,7 @@ class AlbumViewController: UIViewController {
                     self?.viewModels = model.tracks.items.compactMap({
                         AlbumCellViewModel(name: $0.name, artistName: $0.artists.first?.name ?? "")
                     })
+                    self?.tracks = model.tracks.items
                     self?.collectionView.reloadData()
                     self?.collectionView.isHidden = false
                     self?.activityIndicator.stopAnimating()
@@ -81,6 +82,7 @@ class AlbumViewController: UIViewController {
         activityIndicator.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
         activityIndicator.center = view.center
     }
+    
     @objc func didTapShare(){
         guard let url = URL(string: album.external_urls["spotify"] ?? "") else { return }
         let activityController = UIActivityViewController(activityItems: [url], applicationActivities: [])
@@ -127,6 +129,13 @@ extension AlbumViewController: UICollectionViewDataSource, UICollectionViewDeleg
     
     func albumHeaderCollectionReusableViewDidTapPlay(_ header: AlbumHeaderCollectionReusableView) {
         
+        self.tracks = self.tracks.compactMap({
+            var track = $0
+            track.album = self.album
+            return track
+        })
+        
+        PlaybackPresenter.shared.startPlayback(from: self, tracks: self.tracks)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -151,8 +160,9 @@ extension AlbumViewController: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        self.tracks[indexPath.row].album = self.album
+        PlaybackPresenter.shared.startPlayback(from: self, track: self.tracks[indexPath.row])
     }
-    
     
     private func handleError(success: Bool){
         guard success else {

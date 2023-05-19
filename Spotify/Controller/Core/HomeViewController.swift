@@ -88,31 +88,31 @@ class HomeViewController: UIViewController {
         var recommendations: RecommendationsResponse?
         
         //MARK: - fetch new releases data
-        APICaller.shared.getNewReleases { result in
+        APICaller.shared.getNewReleases { [weak self] result in
             defer{
                 dispatchGroup.leave()
             }
             switch result {
             case .success(let model):
                 newReleases = model
-            case .failure(let error):
-                print(error)
+            case .failure(_):
+                self?.handleError(success: false)
             }
         }
         //MARK: - fetch featured playlists data
-        APICaller.shared.getFeaturedPlaylists { result in
+        APICaller.shared.getFeaturedPlaylists { [weak self] result in
             defer{
                 dispatchGroup.leave()
             }
             switch result {
             case .success(let model):
                 featuredPlaylists = model
-            case .failure(let error):
-                print(error)
+            case .failure(_):
+                self?.handleError(success: false)
             }
         }
         //MARK: - fetch genres and recommendations data
-        APICaller.shared.getGenres{ gentresResult in
+        APICaller.shared.getGenres{ [weak self] gentresResult in
             switch gentresResult {
             case .success(let model):
                 let genres = model.genres
@@ -122,19 +122,19 @@ class HomeViewController: UIViewController {
                         seeds.insert(random)
                     }
                 }
-                APICaller.shared.getRecommendations(genres: seeds) { recommendationsResult in
+                APICaller.shared.getRecommendations(genres: seeds) { [weak self] recommendationsResult in
                     defer{
                         dispatchGroup.leave()
                     }
                     switch recommendationsResult {
                     case .success(let model):
                         recommendations = model
-                    case .failure(let error):
-                        print(error)
+                    case .failure(_):
+                        self?.handleError(success: false)
                     }
                 }
-            case .failure(let error):
-                print(error)
+            case .failure(_):
+                self?.handleError(success: false)
             }
         }
         
@@ -256,7 +256,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             albumViewController.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(albumViewController, animated: true)
         case .recommendedTracks:
-            break
+            PlaybackPresenter.shared.startPlayback(from: self, track: tracks[indexPath.row])
         }
     }
     
