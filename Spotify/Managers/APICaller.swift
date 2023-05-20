@@ -24,6 +24,72 @@ final class APICaller{
         case POST
     }
     
+    //MARK: - Library -> Playlist
+    public func getCurrentUserPlaylists(completion: @escaping(Result<[PlayList], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/me/playlists/?limit=50"), type: .GET) { requst in
+            URLSession.shared.dataTask(with: requst) { data, _, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let result = try JSONDecoder().decode(LibraryPlaylistResponse.self, from: data)
+                    completion(.success(result.items))
+                }
+                catch{
+                    completion(.failure(error))
+                }
+            }.resume()
+        }
+    }
+    
+    public func createPlaylist(with name: String, completion: @escaping (Bool) -> Void){
+        getCurrentUserProfile { [weak self] result in
+            switch result{
+            case .success(let profile):
+                self?.createRequest(with: URL(string: Constants.baseUrl + "/users/\(profile.id)/playlists"), type: .POST, completion: { baseRequest in
+                    
+                    var request = baseRequest
+                    let json = ["name": name]
+                    request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: .fragmentsAllowed)
+                    
+                    URLSession.shared.dataTask(with: request) { data, _, error in
+                        
+                        guard let data = data, error == nil else {
+                            completion(false)
+                            return
+                        }
+                        
+                        do{
+                            let result = try JSONSerialization.jsonObject(with: data)
+                            if let response = result as? [String: Any], response["id"] as? String != nil {
+                                completion(true)
+                            }
+                            else{
+                                completion(false)
+                            }
+                        }
+                        catch{
+                            completion(false)
+                        }
+                        
+                    }.resume()
+                })
+            case .failure(_):
+                completion(false)
+            }
+        }
+    }
+    
+    public func addTrackToPlaylist(track: AudioTrack){
+        
+    }
+    
+    public func removeTrackFromPlaylist(track: AudioTrack){
+        
+    }
+    
+    
     //MARK: - Category
     public func getCategories(completion: @escaping (Result<[Category], Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/browse/categories?limit=50"), type: .GET, completion: {request in

@@ -22,11 +22,25 @@ class LibraryViewController: UIViewController {
         return scrollView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Library"
+        label.textAlignment = .left
+        label.textColor = .black
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        return label
+    }()
+    
     private let playlistsVc = LibraryPlaylistsViewController()
     private let albumsVc = LibraryAlbumsViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.largeTitleDisplayMode = .never
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
+        navigationItem.title = ""
+        
         view.backgroundColor = .systemBackground
         view.addSubview(segmentControl)
         view.addSubview(scrollView)
@@ -35,8 +49,8 @@ class LibraryViewController: UIViewController {
         scrollView.delegate = self
         addChild(playlistsVc)
         addChild(albumsVc)
-        
         segmentControl.addTarget(self, action: #selector(segmentControlChange(_:)), for: .valueChanged)
+        updateButton()
     }
     
     override func viewDidLayoutSubviews() {
@@ -55,27 +69,30 @@ class LibraryViewController: UIViewController {
     }
     
     @objc private func segmentControlChange(_ segmentControl: UISegmentedControl){
-        
-        switch segmentControl.selectedSegmentIndex {
-        case 0:
-            scrollView.setContentOffset(.zero, animated: true)
-        case 1:
-            scrollView.setContentOffset(CGPoint(x: view.width, y: 0), animated: true)
-        default:
-            scrollView.setContentOffset(.zero, animated: true)
-        }
-        
+        scrollView.setContentOffset(CGPoint(x: (Int(view.width) * segmentControl.selectedSegmentIndex), y: 0), animated: false)
+        updateButton()
+    }
+    
+    @objc private func didTapAdd(){
+        playlistsVc.showCreateAlert()
     }
     
 }
 
 extension LibraryViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.x >= (view.width / 2){
+        if scrollView.contentOffset.x > view.width / 2 {
             segmentControl.selectedSegmentIndex = 1
         }
         else{
             segmentControl.selectedSegmentIndex = 0
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAdd))
         }
+        updateButton()
+    }
+    
+    private func updateButton(){
+        navigationItem.rightBarButtonItem =
+            segmentControl.selectedSegmentIndex == 0 ? UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAdd)) : nil
     }
 }

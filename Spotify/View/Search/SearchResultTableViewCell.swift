@@ -86,7 +86,7 @@ class SearchResultTableViewCell: UITableViewCell {
     func configure(with viewModel: SearchResultCellViewModel){
         titleLabel.text = viewModel.title
         subTitleLabel.text = viewModel.subTitle
-        iconimageView.sd_setImage(with: viewModel.imageUrl) {[weak self] _,_,_,_ in
+        iconimageView.sd_setImage(with: viewModel.imageUrl, placeholderImage: UIImage(systemName: "photo")) {[weak self] _,_,_,_ in
             self?.activityIndicator.stopAnimating()
         }
         
