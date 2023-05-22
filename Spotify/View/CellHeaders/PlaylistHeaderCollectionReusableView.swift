@@ -127,7 +127,7 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         nameLabel.text = viewModel.name
         ownerNameLabel.text = viewModel.ownerName
         descriptionLabel.text = viewModel.description
-        coverImageView.sd_setImage(with: viewModel.artworkUrl){[weak self] _,_,_,_ in
+        coverImageView.sd_setImage(with: viewModel.artworkUrl, placeholderImage: UIImage(systemName: "photo")){[weak self] _,_,_,_ in
             self?.activityIndicator.stopAnimating()
         }
     }

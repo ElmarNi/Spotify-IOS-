@@ -31,8 +31,8 @@ class SearchResultViewController: UIViewController {
         tableView.backgroundColor = .systemBackground
         tableView.delegate = self
         tableView.dataSource = self
-        
         view.addSubview(tableView)
+        addLongTapGesture()
     }
     
     override func viewDidLayoutSubviews() {
@@ -79,6 +79,53 @@ class SearchResultViewController: UIViewController {
         sections = []
         tableView.reloadData()
         tableView.isHidden = true
+    }
+    
+    private func addLongTapGesture(){
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        tableView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer){
+        if gesture.state == .began {
+            let touchPoint = gesture.location(in: tableView)
+            guard let indexPath = tableView.indexPathForRow(at: touchPoint), indexPath.section == 0 else { return }
+            let result = sections[indexPath.section].result[indexPath.row]
+            switch result {
+            case .track(let model):
+                let alertController = UIAlertController(title: model.name,
+                                                        message: "Would you like to add this to a playlist?",
+                                                        preferredStyle: .actionSheet)
+
+                alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                alertController.addAction(UIAlertAction(title: "Add to playlist", style: .default, handler: {[weak self] _ in
+                    DispatchQueue.main.async {
+                        let libraryPlaylist = LibraryPlaylistsViewController()
+                        libraryPlaylist.title = "Select playlist"
+                        libraryPlaylist.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close,
+                                                                                           target: self,
+                                                                                           action: #selector(self?.didTapClose))
+                        libraryPlaylist.selectionHandler = { playlist in
+                            APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) {[weak self] success in
+                                if success {
+                                    showAlert(message: "Track successfully added to playlist", title: "Success", target: self)
+                                }
+                                else {
+                                    showAlert(message: "Something went wrong when adding track to playlist", title: "Error", target: self)
+                                }
+                            }
+                        }
+                        self?.present(UINavigationController(rootViewController: libraryPlaylist), animated: true)
+                    }
+                }))
+                present(alertController, animated: true)
+            default: break
+            }
+        }
+    }
+    
+    @objc func didTapClose(){
+        dismiss(animated: true)
     }
 }
 

@@ -13,7 +13,7 @@ protocol PlayerViewControllerDelegate:AnyObject{
     func didTapBack(_ playerControlsView: PlayerControlsView, _ playerViewController: PlayerViewController)
     func didTapNext(_ playerControlsView: PlayerControlsView, _ playerViewController: PlayerViewController)
     func viewClosed(_ playerControlsView: PlayerControlsView)
-    func didSlideSlider(_ value: Float)
+    func playerControlsViewSliderValueChanged(_ playerControlsView: PlayerControlsView, _ playBackSlider: UISlider)
 }
 
 class PlayerViewController: UIViewController {
@@ -35,7 +35,7 @@ class PlayerViewController: UIViewController {
         return activityIndicator
     }()
     
-    private let playerControls = PlayerControlsView()
+    let playerControls = PlayerControlsView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,6 +70,7 @@ class PlayerViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(true)
         delegate?.viewClosed(playerControls)
+        playerControls.setAudioSessionToFalse()
     }
     
     func refreshUI(){
@@ -80,7 +81,10 @@ class PlayerViewController: UIViewController {
         coverImageView.sd_setImage(with: dataSource?.imageUrl){[weak self] _,_,_,_ in
             self?.activityIndicator.stopAnimating()
         }
-        playerControls.configure(with: PlayerControlsViewModel(title: dataSource?.name, subTitle: dataSource?.subTitle))
+        playerControls.configure(with: PlayerControlsViewModel(title: dataSource?.name,
+                                                               subTitle: dataSource?.subTitle,
+                                                               duration: dataSource?.duration ?? 0))
+        
     }
     
     @objc func didTapClose(){
@@ -96,11 +100,7 @@ class PlayerViewController: UIViewController {
 
 }
 
-extension PlayerViewController: PlayerControlsViewDelegate{
-    
-    func playerControlsView(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float) {
-        delegate?.didSlideSlider(value)
-    }
+extension PlayerViewController: PlayerControlsViewDelegate {
     
     func playerControlsViewDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView) {
         delegate?.didTapPlayPause(playerControlsView)
@@ -112,6 +112,10 @@ extension PlayerViewController: PlayerControlsViewDelegate{
     
     func playerControlsViewDidTapBackButton(_ playerControlsView: PlayerControlsView) {
         delegate?.didTapBack(playerControlsView, self)
+    }
+    
+    func playerControlsViewSliderValueChanged(_ playerControlsView: PlayerControlsView, _ playBackSlider: UISlider) {
+        delegate?.playerControlsViewSliderValueChanged(playerControlsView, playBackSlider)
     }
     
 }

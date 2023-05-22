@@ -20,14 +20,14 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
     private let trackNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .regular)
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     
     private let artistNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .thin)
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     
@@ -64,6 +64,7 @@ class RecommendedTrackCollectionViewCell: UICollectionViewCell {
         
         trackNameLabel.sizeToFit()
         artistNameLabel.sizeToFit()
+        
         let imageSize = contentView.height - 4
         
         albumCoverImageView.frame = CGRect(x: 5,

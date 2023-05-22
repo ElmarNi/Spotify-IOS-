@@ -11,10 +11,9 @@ import SDWebImage
 class PlayListViewController: UIViewController {
     
     private let playlist: PlayList
-    
     private var viewModels = [RecommendedTracksCellViewModel]()
-    
     private var tracks = [AudioTrack]()
+    public var isOwner = false
     
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView()
@@ -37,7 +36,7 @@ class PlayListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         let layout  = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.itemSize = CGSize(width: view.frame.width, height: 60)
@@ -56,7 +55,7 @@ class PlayListViewController: UIViewController {
         collectionView.delegate = self
         collectionView.register(RecommendedTrackCollectionViewCell.self,
                                 forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier)
-
+        
         collectionView.register(PlaylistHeaderCollectionReusableView.self,
                                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                                 withReuseIdentifier: PlaylistHeaderCollectionReusableView.identifier)
@@ -80,11 +79,12 @@ class PlayListViewController: UIViewController {
                     self?.activityIndicator.stopAnimating()
                     
                 case .failure(_):
-                    self?.handleError(success: false)
+                    showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                 }
             }
         }
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
+        addLongTapGesture()
     }
     
     override func viewDidLayoutSubviews() {
@@ -94,11 +94,52 @@ class PlayListViewController: UIViewController {
         activityIndicator.center = view.center
     }
     
-    @objc func didTapShare(){
+    
+    private func addLongTapGesture(){
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didTapShare(){
         guard let url = URL(string: playlist.external_urls["spotify"] ?? "") else { return }
         let activityController = UIActivityViewController(activityItems: [url], applicationActivities: [])
         activityController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(activityController, animated: true)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began, isOwner {
+            let touchPoint = gesture.location(in: collectionView)
+            guard let indexPath = collectionView.indexPathForItem(at: touchPoint) else { return }
+            
+            let model = tracks[indexPath.row]
+            let alertController = UIAlertController(title: model.name,
+                                                    message: "Would you like to remove this from a playlist?",
+                                                    preferredStyle: .actionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: {[weak self] _ in
+                guard let strongSelf = self else { return }
+                APICaller.shared.removeTrackFromPlaylist(track: model, playlist: strongSelf.playlist) {success in
+                    DispatchQueue.main.async{
+                        if success {
+                            strongSelf.tracks.remove(at: indexPath.row)
+                            strongSelf.viewModels.remove(at: indexPath.row)
+                            strongSelf.collectionView.reloadData()
+                            showAlert(message: "Track successfully removed to playlist", title: "Success", target: strongSelf)
+                        }
+                        else {
+                            showAlert(message: "Something went wrong when removing track to playlist", title: "Error", target: strongSelf)
+                        }
+                    }
+                }
+            }))
+            present(alertController, animated: true)
+        }
+    }
+    
+    @objc func didTapClose(){
+        dismiss(animated: true)
     }
 }
 
@@ -162,14 +203,4 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
         PlaybackPresenter.shared.startPlayback(from: self, track: self.tracks[indexPath.row])
     }
     
-    private func handleError(success: Bool){
-        guard success else {
-            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting data", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: {[weak self] _ in
-                self?.navigationController?.popViewController(animated: true)
-            }))
-            present(alert, animated: true)
-            return
-        }
-    }
 }

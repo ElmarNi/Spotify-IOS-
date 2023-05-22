@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import MediaPlayer
 
 extension UIView{
     var width: CGFloat{
@@ -64,3 +65,41 @@ extension String {
     }
 }
 
+extension MPVolumeView {
+    static let shared = MPVolumeView()
+    
+    func volumeUp(){
+        guard let slider = subviews.first(where: { $0 is UISlider }) as? UISlider else { return }
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.01) {
+            slider.value = slider.value < 1 ? slider.value + 0.1 : 1
+        }
+    }
+    
+    func setVolume(_ volume: Float) {
+        guard let slider = subviews.first(where: { $0 is UISlider }) as? UISlider else { return }
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.01) {
+            slider.value = volume
+        }
+    }
+
+    func volumeDown(){
+        guard let slider = subviews.first(where: { $0 is UISlider }) as? UISlider else { return }
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.01) {
+            slider.value = slider.value > 0 ? slider.value - 0.1 : 0
+        }
+    }
+}
+
+func stringFromTimeInterval(interval: TimeInterval) -> String {
+    let interval = Int(interval)
+    let seconds = interval % 60
+    let minutes = (interval / 60) % 60
+    return String(format: "%02d:%02d", minutes, seconds)
+}
+
+func showAlert(message: String, title: String, target: UIViewController?){
+    guard let target = target else { return }
+    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+    target.present(alert, animated: true)
+}

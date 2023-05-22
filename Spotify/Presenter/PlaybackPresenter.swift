@@ -14,6 +14,7 @@ protocol PlayerDataSource: AnyObject{
     var subTitle: String? { get }
     var imageUrl: URL? { get }
     var external_urls: [String: String]? { get }
+    var duration: Double { get }
 }
 
 protocol PlaybackPresenterDelegate: AnyObject{
@@ -47,7 +48,8 @@ final class PlaybackPresenter {
     var playerQueue: AVQueuePlayer?
     private var playerViewController: PlayerViewController?
     
-    func startPlayback(from viewController: UIViewController, track: AudioTrack){
+    
+    func startPlayback(from viewController: UIViewController, track: AudioTrack) {
         
         guard let url = URL(string: track.preview_url ?? "") else {
 //            let alert = UIAlertController(title: "Error", message: "Song hasn't a preview", preferredStyle: .alert)
@@ -57,7 +59,7 @@ final class PlaybackPresenter {
         }
         
         player = AVPlayer(url: url)
-        player?.volume = 0.5
+        player?.volume = 1
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(playerDidFinishPlaying),
@@ -68,6 +70,15 @@ final class PlaybackPresenter {
         playerViewController.title = track.name
         playerViewController.dataSource = self
         playerViewController.delegate = self
+        
+        guard let player = self.player else { return }
+        player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1, preferredTimescale: 1), queue: DispatchQueue.main) { (CMTime) -> Void in
+            if player.currentItem?.status == .readyToPlay {
+                let time : Float64 = CMTimeGetSeconds(player.currentTime());
+                playerViewController.playerControls.changePlayBackSliderValue(value: Float (time))
+                playerViewController.playerControls.changeCurrentTimeLabelText(text: stringFromTimeInterval(interval: time))
+            }
+        }
         
         viewController.present(UINavigationController(rootViewController: playerViewController), animated: true) { [weak self] in
             self?.player?.play()
@@ -101,13 +112,19 @@ final class PlaybackPresenter {
                                                    object: $0)
         })
         
-        playerQueue?.volume = 0.5
-        
-        guard playerQueue?.items().count != 0 else {
-//            let alert = UIAlertController(title: "Error", message: "Album hasn't any song with preview", preferredStyle: .alert)
-//            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
-//            viewController.present(alert, animated: true)
+        playerQueue?.volume = 1
+        guard let playerQueue = self.playerQueue,
+              playerQueue.items().count != 0
+        else {
             return
+        }
+        
+        playerQueue.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1, preferredTimescale: 1), queue: DispatchQueue.main) { (CMTime) -> Void in
+            if playerQueue.currentItem?.status == .readyToPlay {
+                let time : Float64 = CMTimeGetSeconds(playerQueue.currentTime());
+                playerViewController.playerControls.changePlayBackSliderValue(value: Float (time))
+                playerViewController.playerControls.changeCurrentTimeLabelText(text: stringFromTimeInterval(interval: time))
+            }
         }
         
         viewController.present(UINavigationController(rootViewController: playerViewController), animated: true) { [weak self] in
@@ -124,12 +141,14 @@ final class PlaybackPresenter {
         }
         
         if let playerQueue = playerQueue {
-            print("l")
             if index < (tracks.count - 1) {
                 index += 1
                 playerViewController?.refreshUI()
             }
             else{
+                
+                playerViewController?.playerControls.changePlayBackSliderValue(value: 0)
+                playerViewController?.playerControls.changeCurrentTimeLabelText(text: "00:00")
                 
                 self.playerQueue = AVQueuePlayer(items: tracks.compactMap({
                     guard let url = URL(string: $0.preview_url ?? "") else { return nil }
@@ -141,14 +160,21 @@ final class PlaybackPresenter {
                 delegate?.playerItemDidPlayToEndTime()
                 playerQueue.pause()
                 
-                guard let playerQueue = self.playerQueue else { return }
-                
                 playerQueue.items().forEach({
                     NotificationCenter.default.addObserver(self,
                                                            selector: #selector(playerDidFinishPlaying),
                                                            name: .AVPlayerItemDidPlayToEndTime,
                                                            object: $0)
                 })
+                
+                playerQueue.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1, preferredTimescale: 1), queue: DispatchQueue.main)
+                {[weak self] (CMTime) -> Void in
+                    if playerQueue.currentItem?.status == .readyToPlay {
+                        let time : Float64 = CMTimeGetSeconds(playerQueue.currentTime());
+                        self?.playerViewController?.playerControls.changePlayBackSliderValue(value: Float (time))
+                        self?.playerViewController?.playerControls.changeCurrentTimeLabelText(text: stringFromTimeInterval(interval: time))
+                    }
+                }
             }
         }
     }
@@ -170,6 +196,18 @@ extension PlaybackPresenter: PlayerDataSource{
     
     var external_urls: [String: String]? {
         return currentTrack?.external_urls
+    }
+    
+    var duration: Double {
+        if let player = player, let currentItem = player.currentItem {
+            return currentItem.asset.duration.seconds
+        }
+        else if let playerQueue = playerQueue, let currentItem = playerQueue.currentItem {
+            return currentItem.asset.duration.seconds
+        }
+        else {
+            return 0
+        }
     }
 }
 
@@ -272,6 +310,7 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
     }
     
     func viewClosed(_ playerControlsView: PlayerControlsView) {
+        
         if let player = player {
             if player.timeControlStatus == .playing {
                 playerControlsView.changePlayPauseButtonImage()
@@ -290,18 +329,20 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
         self.player = nil
         self.playerQueue = nil
         index = 0
+        
     }
     
-    func didSlideSlider(_ value: Float) {
+    func playerControlsViewSliderValueChanged(_ playerControlsView: PlayerControlsView, _ playBackSlider: UISlider) {
+        let seconds : Int64 = Int64(playBackSlider.value)
+        let targetTime:CMTime = CMTimeMake(value: seconds, timescale: 1)
         
         if let player = player {
-            player.volume = value
+            player.seek(to: targetTime)
         }
         
         if let playerQueue = playerQueue {
-            playerQueue.volume = value
+            playerQueue.seek(to: targetTime)
         }
         
     }
-    
 }

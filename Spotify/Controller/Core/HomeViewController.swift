@@ -52,7 +52,9 @@ class HomeViewController: UIViewController {
         fetchData()
         configureCollectionView()
         view.addSubview(activityIndicator)
+        addLongTapGesture()
     }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         collectionView.frame = view.bounds
@@ -96,7 +98,7 @@ class HomeViewController: UIViewController {
             case .success(let model):
                 newReleases = model
             case .failure(_):
-                self?.handleError(success: false)
+                showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
             }
         }
         //MARK: - fetch featured playlists data
@@ -108,7 +110,7 @@ class HomeViewController: UIViewController {
             case .success(let model):
                 featuredPlaylists = model
             case .failure(_):
-                self?.handleError(success: false)
+                showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
             }
         }
         //MARK: - fetch genres and recommendations data
@@ -130,11 +132,11 @@ class HomeViewController: UIViewController {
                     case .success(let model):
                         recommendations = model
                     case .failure(_):
-                        self?.handleError(success: false)
+                        showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                     }
                 }
             case .failure(_):
-                self?.handleError(success: false)
+                showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
             }
         }
         
@@ -143,7 +145,7 @@ class HomeViewController: UIViewController {
                   let playlists = featuredPlaylists?.playlists.items,
                   let tracks = recommendations?.tracks
             else{
-                self.handleError(success: false)
+                showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                 return
             }
             self.configureModels(newAlbums: newAlbums, playlists: playlists, tracks: tracks)
@@ -179,13 +181,55 @@ class HomeViewController: UIViewController {
         activityIndicator.stopAnimating()
     }
     
-    @objc func didTapSettings() {
+    @objc private func didTapSettings() {
         let settingsViewController = SettingsViewController()
         settingsViewController.title = "Settings"
         settingsViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(settingsViewController, animated: true)
     }
-
+    
+    private func addLongTapGesture(){
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            let touchPoint = gesture.location(in: collectionView)
+            guard let indexPath = collectionView.indexPathForItem(at: touchPoint), indexPath.section == 2 else { return }
+            let model = tracks[indexPath.row]
+            let alertController = UIAlertController(title: model.name,
+                                                    message: "Would you like to add this to a playlist?",
+                                                    preferredStyle: .actionSheet)
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alertController.addAction(UIAlertAction(title: "Add to playlist", style: .default, handler: {[weak self] _ in
+                DispatchQueue.main.async {
+                    let libraryPlaylist = LibraryPlaylistsViewController()
+                    libraryPlaylist.title = "Select playlist"
+                    libraryPlaylist.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close,
+                                                                                       target: self,
+                                                                                       action: #selector(self?.didTapClose))
+                    libraryPlaylist.selectionHandler = { playlist in
+                        APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) {[weak self] success in
+                            if success {
+                                showAlert(message: "Track successfully added to playlist", title: "Success", target: self)
+                            }
+                            else {
+                                showAlert(message: "Something went wrong when adding track to playlist", title: "Error", target: self)
+                            }
+                        }
+                    }
+                    self?.present(UINavigationController(rootViewController: libraryPlaylist), animated: true)
+                }
+            }))
+            present(alertController, animated: true)
+        }
+    }
+    
+    @objc func didTapClose(){
+        dismiss(animated: true)
+    }
+    
 }
 
 extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource{
@@ -271,7 +315,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         header.configure(with: title)
         return header
     }
-    
+    //0 - new released albums, 1 - featured playlists, 2 - recommended tracks
     private static func createSectionLayout(section: Int) -> NSCollectionLayoutSection? {
         let supplementaryItems = [NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: NSCollectionLayoutSize(
@@ -378,14 +422,6 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             let section = NSCollectionLayoutSection(group: group)
             section.boundarySupplementaryItems = supplementaryItems
             return section
-        }
-    }
-    private func handleError(success: Bool){
-        guard success else {
-            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting data", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
-            present(alert, animated: true)
-            return
         }
     }
 }

@@ -69,11 +69,12 @@ class AlbumViewController: UIViewController {
                     self?.collectionView.isHidden = false
                     self?.activityIndicator.stopAnimating()
                 case .failure(_):
-                    self?.handleError(success: false)
+                    showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                 }
             }
         }
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShare))
+        addLongTapGesture()
     }
     
     override func viewDidLayoutSubviews() {
@@ -83,12 +84,57 @@ class AlbumViewController: UIViewController {
         activityIndicator.center = view.center
     }
     
-    @objc func didTapShare(){
+    private func addLongTapGesture(){
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didTapShare(){
         guard let url = URL(string: album.external_urls["spotify"] ?? "") else { return }
         let activityController = UIActivityViewController(activityItems: [url], applicationActivities: [])
         activityController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(activityController, animated: true)
     }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer){
+        if gesture.state == .began {
+            let touchPoint = gesture.location(in: collectionView)
+            guard let indexPath = collectionView.indexPathForItem(at: touchPoint) else { return }
+            
+            let model = tracks[indexPath.row]
+            let alertController = UIAlertController(title: model.name,
+                                                    message: "Would you like to add this to a playlist?",
+                                                    preferredStyle: .actionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alertController.addAction(UIAlertAction(title: "Add to playlist", style: .default, handler: {[weak self] _ in
+                DispatchQueue.main.async {
+                    let libraryPlaylist = LibraryPlaylistsViewController()
+                    libraryPlaylist.title = "Select playlist"
+                    libraryPlaylist.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close,
+                                                                                       target: self,
+                                                                                       action: #selector(self?.didTapClose))
+                    libraryPlaylist.selectionHandler = { playlist in
+                        APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) {[weak self] success in
+                            if success {
+                                showAlert(message: "Track successfully added to playlist", title: "Success", target: self)
+                            }
+                            else {
+                                showAlert(message: "Something went wrong when adding track to playlist", title: "Error", target: self)
+                            }
+                        }
+                    }
+                    self?.present(UINavigationController(rootViewController: libraryPlaylist), animated: true)
+                }
+            }))
+            present(alertController, animated: true)
+        }
+    }
+    
+    @objc func didTapClose(){
+        dismiss(animated: true)
+    }
+    
 }
 
 extension AlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, AlbumHeaderCollectionReusableViewDelegate{
@@ -164,14 +210,4 @@ extension AlbumViewController: UICollectionViewDataSource, UICollectionViewDeleg
         PlaybackPresenter.shared.startPlayback(from: self, track: self.tracks[indexPath.row])
     }
     
-    private func handleError(success: Bool){
-        guard success else {
-            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting data", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: {[weak self] _ in
-                self?.navigationController?.popViewController(animated: true)
-            }))
-            present(alert, animated: true)
-            return
-        }
-    }
 }

@@ -6,12 +6,12 @@
 //
 
 import UIKit
-
+ 
 class LibraryPlaylistsViewController: UIViewController {
     
     private var playlists = [PlayList]()
-    
     private let noPlayListView = ActionLabelView()
+    public var selectionHandler: ((PlayList) -> Void)?
     
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -31,6 +31,7 @@ class LibraryPlaylistsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        tableView.backgroundColor = .systemBackground
         view.addSubview(tableView)
         view.addSubview(activityIndicator)
         
@@ -164,6 +165,17 @@ extension LibraryPlaylistsViewController: UITableViewDelegate, UITableViewDataSo
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let playlist = playlists[indexPath.row]
+        
+        guard selectionHandler == nil else {
+            selectionHandler?(playlist)
+            dismiss(animated: true)
+            return
+        }
+        
+        let playListController = PlayListViewController(playlist: playlist)
+        playListController.isOwner = true
+        navigationController?.pushViewController(playListController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

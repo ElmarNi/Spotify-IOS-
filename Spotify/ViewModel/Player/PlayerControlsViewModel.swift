@@ -10,4 +10,5 @@ import Foundation
 struct PlayerControlsViewModel{
     let title: String?
     let subTitle: String?
+    let duration: Double
 }

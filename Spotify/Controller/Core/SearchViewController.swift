@@ -72,7 +72,7 @@ class SearchViewController: UIViewController {
                     self?.collectionView.reloadData()
                     self?.activityIndicator.stopAnimating()
                 case .failure(_):
-                    self?.handleError(success: false)
+                    showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                 }
             }
         }
@@ -114,7 +114,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 case .success(let results):
                     resultController.update(with: results)
                 case .failure(_):
-                    self?.handleError(success: false)
+                    showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                 }
             }
         }
@@ -170,17 +170,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             let safariViewController = SFSafariViewController(url: url)
             present(safariViewController, animated: true)
             
-        }
-    }
-    
-    private func handleError(success: Bool){
-        guard success else {
-            let alert = UIAlertController(title: "Error", message: "Something went wrong when getting data", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: {[weak self] _ in
-                self?.navigationController?.popViewController(animated: true)
-            }))
-            present(alert, animated: true)
-            return
         }
     }
     
