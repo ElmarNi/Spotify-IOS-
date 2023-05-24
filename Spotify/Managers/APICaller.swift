@@ -23,6 +23,7 @@ final class APICaller{
         case GET
         case POST
         case DELETE
+        case PUT
     }
     
     //MARK: - Library -> Playlist
@@ -139,9 +140,66 @@ final class APICaller{
         }
     }
     
+    public func unfollowPlaylist(playlist: PlayList, completion: @escaping (Bool) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/playlists/\(playlist.id)/followers"), type: .DELETE) { request in
+            URLSession.shared.dataTask(with: request) { _, response, error in
+                guard let code = (response as? HTTPURLResponse)?.statusCode, error == nil else{
+                    completion(false)
+                    return
+                }
+                completion(code == 200)
+            }.resume()
+        }
+    }
+    
+    public func getCurrentUserAlbums(completion: @escaping(Result<[Album], Error>) -> Void) {
+        createRequest(with: URL(string: Constants.baseUrl + "/me/albums/?limit=50"), type: .GET) { requst in
+            URLSession.shared.dataTask(with: requst) { data, _, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let result = try JSONDecoder().decode(LibraryAlbumResponse.self, from: data)
+                    completion(.success(result.items.compactMap({ $0.album })))
+                }
+                catch{
+                    completion(.failure(error))
+                    print(error)
+                }
+            }.resume()
+        }
+    }
+    
+    public func saveAlbum(album: Album, completion: @escaping (Bool) -> Void) {
+        createRequest(with: URL(string: Constants.baseUrl + "/me/albums?ids=\(album.id)"), type: .PUT) { baseRequest in
+            var request = baseRequest
+            
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            URLSession.shared.dataTask(with: request) { _, response, error in
+                guard let code = (response as? HTTPURLResponse)?.statusCode, error == nil else {
+                    completion(false)
+                    return
+                }
+                completion(code == 200)
+            }.resume()
+        }
+    }
+    
+    public func removeAlbumFromLibrary(album: Album, completion: @escaping (Bool) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/me/albums?ids=\(album.id)"), type: .DELETE) { request in
+            URLSession.shared.dataTask(with: request) { _, response, error in
+                guard let code = (response as? HTTPURLResponse)?.statusCode, error == nil else{
+                    completion(false)
+                    return
+                }
+                completion(code == 200)
+            }.resume()
+        }
+    }
     
     //MARK: - Category
-    public func getCategories(completion: @escaping (Result<[Category], Error>) -> Void){
+    public func getCategories(completion: @escaping (Result<[Category], Error>) -> Void) {
         createRequest(with: URL(string: Constants.baseUrl + "/browse/categories?limit=50"), type: .GET, completion: {request in
             URLSession.shared.dataTask(with: request) { data, _, error in
                 guard let data = data, error == nil else {

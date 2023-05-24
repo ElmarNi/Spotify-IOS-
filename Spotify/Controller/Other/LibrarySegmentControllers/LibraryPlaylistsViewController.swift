@@ -39,14 +39,13 @@ class LibraryPlaylistsViewController: UIViewController {
         tableView.dataSource = self
         setupNoPlaylistView()
         getPlaylistsData()
+        addLongTapGesture()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        noPlayListView.frame = CGRect(x: 0, y: 0, width: view.width, height: 100)
-        noPlayListView.center = view.center
-        activityIndicator.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        activityIndicator.center = view.center
+        noPlayListView.frame = CGRect(x: 0, y: (view.height - 100) / 2, width: view.width, height: 100)
+        activityIndicator.frame = CGRect(x: view.width / 2, y: view.height / 2, width: 0, height: 0)
         tableView.frame = view.frame
     }
 
@@ -61,10 +60,10 @@ extension LibraryPlaylistsViewController{
                 case .success(let playlists):
                     self?.playlists = playlists
                     self?.updateUI()
-                    self?.activityIndicator.stopAnimating()
                 case .failure(_):
-                    self?.handleError(success: false, message: "Something went wrong when getting data")
+                    showAlert(message: "Something went wrong when getting data", title: "Error", target: self)
                 }
+                self?.activityIndicator.stopAnimating()
             }
         }
     }
@@ -101,7 +100,7 @@ extension LibraryPlaylistsViewController{
             guard let field = alert.textFields?.first,
                   let text = field.text,
                   !text.trimmingCharacters(in: .whitespaces).isEmpty else {
-                self?.handleError(success: false, message: "Playlist name can't be empty")
+                showAlert(message: "Playlist name can't be empty", title: "Error", target: self)
                 return
             }
             self?.activityIndicator.startAnimating()
@@ -112,7 +111,7 @@ extension LibraryPlaylistsViewController{
                     case true:
                         self?.getPlaylistsData()
                     case false:
-                        self?.handleError(success: false, message: "Something went wrong when creating playlist")
+                        showAlert(message: "Something went wrong when creating playlist", title: "Error", target: self)
                     }
                 }
             }
@@ -122,12 +121,37 @@ extension LibraryPlaylistsViewController{
         present(alert, animated: true)
     }
     
-    private func handleError(success: Bool, message: String){
-        guard success else {
-            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
-            present(alert, animated: true)
-            return
+    private func addLongTapGesture(){
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        tableView.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer){
+        if gesture.state == .began {
+            let touchPoint = gesture.location(in: tableView)
+            guard let indexPath = tableView.indexPathForRow(at: touchPoint) else { return }
+            
+            let model = playlists[indexPath.row]
+            let alertController = UIAlertController(title: model.name,
+                                                    message: "Would you like remove this playlist?",
+                                                    preferredStyle: .actionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: {[weak self] _ in
+                APICaller.shared.unfollowPlaylist(playlist: model) { success in
+                    DispatchQueue.main.async {
+                        if success {
+                            showAlert(message: "Playlist successfully removed", title: "Success", target: self)
+                            self?.playlists.remove(at: indexPath.row)
+                            self?.tableView.reloadData()
+                        }
+                        else {
+                            showAlert(message: "Something went wrong when removing playlist", title: "Error", target: self)
+                        }
+                    }
+                }
+            }))
+            present(alertController, animated: true)
         }
     }
     

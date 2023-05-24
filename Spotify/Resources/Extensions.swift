@@ -103,3 +103,7 @@ func showAlert(message: String, title: String, target: UIViewController?){
     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
     target.present(alert, animated: true)
 }
+
+extension Notification.Name {
+    static let albumSavedNotification = Notification.Name("albumSavedNotification")
+}

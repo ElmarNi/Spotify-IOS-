@@ -70,6 +70,8 @@
 		EB98C3172A0BEB2C002C28A9 /* RecommendedTracksCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB98C3162A0BEB2C002C28A9 /* RecommendedTracksCellViewModel.swift */; };
 		EBC5CC8C2A0CB7C500CAAEBA /* PlaylistHeaderCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC5CC8B2A0CB7C500CAAEBA /* PlaylistHeaderCollectionReusableView.swift */; };
 		EBC5CC8E2A0CBCF200CAAEBA /* PlaylistHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC5CC8D2A0CBCF200CAAEBA /* PlaylistHeaderViewModel.swift */; };
+		EBC894BF2A1D6B51006A25AF /* LibraryAlbumResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC894BE2A1D6B51006A25AF /* LibraryAlbumResponse.swift */; };
+		EBC894C32A1D7146006A25AF /* SaveAlbumActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC894C22A1D7146006A25AF /* SaveAlbumActivity.swift */; };
 		EBE28F652A03E5AC00B370A8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE28F642A03E5AC00B370A8 /* SettingsViewModel.swift */; };
 		EBE7955A2A13EEF600D4B603 /* PlaybackPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE795592A13EEF600D4B603 /* PlaybackPresenter.swift */; };
 /* End PBXBuildFile section */
@@ -142,6 +144,8 @@
 		EB98C3162A0BEB2C002C28A9 /* RecommendedTracksCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedTracksCellViewModel.swift; sourceTree = "<group>"; };
 		EBC5CC8B2A0CB7C500CAAEBA /* PlaylistHeaderCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistHeaderCollectionReusableView.swift; sourceTree = "<group>"; };
 		EBC5CC8D2A0CBCF200CAAEBA /* PlaylistHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistHeaderViewModel.swift; sourceTree = "<group>"; };
+		EBC894BE2A1D6B51006A25AF /* LibraryAlbumResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryAlbumResponse.swift; sourceTree = "<group>"; };
+		EBC894C22A1D7146006A25AF /* SaveAlbumActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveAlbumActivity.swift; sourceTree = "<group>"; };
 		EBE28F642A03E5AC00B370A8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		EBE795592A13EEF600D4B603 /* PlaybackPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPresenter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -182,6 +186,7 @@
 				EB2483042A08EE4300E8488E /* FeaturedPlaylistCollectionViewCell.swift */,
 				EB2483062A08EE5500E8488E /* RecommendedTrackCollectionViewCell.swift */,
 				EB3D3E012A0EB35E0012FC88 /* AlbumCollectionViewCell.swift */,
+				EBC894C22A1D7146006A25AF /* SaveAlbumActivity.swift */,
 			);
 			path = Browse;
 			sourceTree = "<group>";
@@ -224,6 +229,7 @@
 			isa = PBXGroup;
 			children = (
 				EB29B2982A17A4DA00EABC29 /* LibraryPlaylistResponse.swift */,
+				EBC894BE2A1D6B51006A25AF /* LibraryAlbumResponse.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -612,6 +618,7 @@
 				EB450C342A136FDB005EF3E7 /* SearchResultTableViewCell.swift in Sources */,
 				EB0091F82A0185300071E0E1 /* Extensions.swift in Sources */,
 				EB2483032A08EE1D00E8488E /* NewReleasesCollectionViewCell.swift in Sources */,
+				EBC894BF2A1D6B51006A25AF /* LibraryAlbumResponse.swift in Sources */,
 				EB69803429FFB0C100AB4D9D /* TabBarViewController.swift in Sources */,
 				EBC5CC8E2A0CBCF200CAAEBA /* PlaylistHeaderViewModel.swift in Sources */,
 				EB69805629FFE50B00AB4D9D /* Artist.swift in Sources */,
@@ -625,6 +632,7 @@
 				EB29B2942A1797E700EABC29 /* LibraryAlbumsViewController.swift in Sources */,
 				EB29B2992A17A4DA00EABC29 /* LibraryPlaylistResponse.swift in Sources */,
 				EB71BCC62A05558E00379723 /* RecommendationsResponse.swift in Sources */,
+				EBC894C32A1D7146006A25AF /* SaveAlbumActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

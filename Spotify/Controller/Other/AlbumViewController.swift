@@ -91,7 +91,22 @@ class AlbumViewController: UIViewController {
     
     @objc private func didTapShare(){
         guard let url = URL(string: album.external_urls["spotify"] ?? "") else { return }
-        let activityController = UIActivityViewController(activityItems: [url], applicationActivities: [])
+        
+        let customItem = SaveAlbumActivity {
+            APICaller.shared.saveAlbum(album: self.album) { [weak self] success in
+                DispatchQueue.main.async {
+                    if success {
+                        NotificationCenter.default.post(name: .albumSavedNotification, object: nil)
+                        showAlert(message: "Album successfully saved", title: "Success", target: self)
+                    }
+                    else {
+                        showAlert(message: "Something went wrong when saving album", title: "Error", target: self)
+                    }
+                }
+            }
+        }
+        
+        let activityController = UIActivityViewController(activityItems: [url], applicationActivities: [customItem])
         activityController.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(activityController, animated: true)
     }
