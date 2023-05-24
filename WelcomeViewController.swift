@@ -17,18 +17,71 @@ class WelcomeViewController: UIViewController {
         return button
     }()
     
+    private let imageView: UIImageView = {
+        let imageView = UIImageView();
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = UIImage(named: "albums_background")
+        return imageView
+    }()
+    
+    private let logoImageView: UIImageView = {
+        let imageView = UIImageView();
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = UIImage(named: "logo")
+        return imageView
+    }()
+    
+    private let overlayView: UIView = {
+        let overlay = UIView()
+        overlay.backgroundColor = .black
+        overlay.alpha = 0.7
+        return overlay
+    }()
+    
+    private let viewTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 35, weight: .bold)
+        label.text = "Spotify"
+        label.textColor = .white
+        label.numberOfLines = 1
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 30, weight: .bold)
+        label.text = "Listen to Millions\nof Songs on\nthe go"
+        label.textColor = .white
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        title = "Spotify"
-        view.backgroundColor = .systemGreen
-        
+        view.backgroundColor = .black
+        view.addSubview(imageView)
+        view.addSubview(overlayView)
+        view.addSubview(viewTitleLabel)
+        view.addSubview(logoImageView)
+        view.addSubview(titleLabel)
         view.addSubview(signInButton)
+        
         signInButton.addTarget(self, action: #selector(signInButtonOnClick), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        titleLabel.sizeToFit()
+        imageView.frame = view.bounds
+        overlayView.frame = view.bounds
+        viewTitleLabel.frame = CGRect(x: 0, y: view.safeAreaInsets.bottom + 20, width: view.width, height: 50)
+        logoImageView.frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+        logoImageView.center = view.center
+        titleLabel.frame = CGRect(x: 0, y: logoImageView.bottom + 20, width: view.width, height: titleLabel.height)
         signInButton.frame = CGRect(x: 40, y: view.height - 60 - view.safeAreaInsets.bottom, width: view.width - 80, height: 50)
     }
     

@@ -127,14 +127,17 @@ class PlayListViewController: UIViewController {
                             strongSelf.viewModels.remove(at: indexPath.row)
                             strongSelf.collectionView.reloadData()
                             showAlert(message: "Track successfully removed to playlist", title: "Success", target: strongSelf)
+                            HapticsManager.shared.vibrate(for: .success)
                         }
                         else {
                             showAlert(message: "Something went wrong when removing track to playlist", title: "Error", target: strongSelf)
+                            HapticsManager.shared.vibrate(for: .error)
                         }
                     }
                 }
             }))
             present(alertController, animated: true)
+            HapticsManager.shared.vibrateForSelection()
         }
     }
     
@@ -199,6 +202,7 @@ extension PlayListViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         collectionView.deselectItem(at: indexPath, animated: true)
         PlaybackPresenter.shared.startPlayback(from: self, track: self.tracks[indexPath.row])
     }

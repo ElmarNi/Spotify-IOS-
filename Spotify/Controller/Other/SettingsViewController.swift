@@ -52,7 +52,25 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     private func signOutTapped(){
-        
+        let alert = UIAlertController(title: "Sign Out", message: "Are you sure?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Sign Out", style: .destructive, handler: { _ in
+            AuthManager.shared.signOut {[weak self] isSignedOut in
+                if isSignedOut {
+                    DispatchQueue.main.async {
+                        let welcomeNavViewController = UINavigationController(rootViewController: WelcomeViewController())
+                        welcomeNavViewController.navigationBar.prefersLargeTitles = true
+                        welcomeNavViewController.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
+                        welcomeNavViewController.modalPresentationStyle = .fullScreen
+                        self?.present(welcomeNavViewController, animated: true, completion: {
+                            self?.navigationController?.popToRootViewController(animated: true)
+                        })
+                    }
+                }
+            }
+        }))
+        present(alert, animated: true)
+        HapticsManager.shared.vibrateForSelection()
     }
     
     //MARK: - tableview datasource and delegate

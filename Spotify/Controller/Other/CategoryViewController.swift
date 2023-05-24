@@ -112,6 +112,7 @@ extension CategoryViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         let playlist = playlists[indexPath.row]
         let playListViewController = PlayListViewController(playlist: playlist)
         playListViewController.navigationItem.largeTitleDisplayMode = .never

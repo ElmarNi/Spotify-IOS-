@@ -114,14 +114,17 @@ extension LibraryAlbumsViewController{
                             showAlert(message: "Album successfully removed", title: "Success", target: self)
                             self?.albums.remove(at: indexPath.row)
                             self?.tableView.reloadData()
+                            HapticsManager.shared.vibrate(for: .success)
                         }
                         else {
                             showAlert(message: "Something went wrong when removing album", title: "Error", target: self)
+                            HapticsManager.shared.vibrate(for: .error)
                         }
                     }
                 }
             }))
             present(alertController, animated: true)
+            HapticsManager.shared.vibrateForSelection()
         }
     }
     
@@ -158,7 +161,7 @@ extension LibraryAlbumsViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        HapticsManager.shared.vibrateForSelection()
         tableView.deselectRow(at: indexPath, animated: true)
         let album = albums[indexPath.row]
         

@@ -98,9 +98,11 @@ class AlbumViewController: UIViewController {
                     if success {
                         NotificationCenter.default.post(name: .albumSavedNotification, object: nil)
                         showAlert(message: "Album successfully saved", title: "Success", target: self)
+                        HapticsManager.shared.vibrate(for: .success)
                     }
                     else {
                         showAlert(message: "Something went wrong when saving album", title: "Error", target: self)
+                        HapticsManager.shared.vibrate(for: .error)
                     }
                 }
             }
@@ -133,9 +135,11 @@ class AlbumViewController: UIViewController {
                         APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) {[weak self] success in
                             if success {
                                 showAlert(message: "Track successfully added to playlist", title: "Success", target: self)
+                                HapticsManager.shared.vibrate(for: .success)
                             }
                             else {
                                 showAlert(message: "Something went wrong when adding track to playlist", title: "Error", target: self)
+                                HapticsManager.shared.vibrate(for: .error)
                             }
                         }
                     }
@@ -143,6 +147,7 @@ class AlbumViewController: UIViewController {
                 }
             }))
             present(alertController, animated: true)
+            HapticsManager.shared.vibrateForSelection()
         }
     }
     
@@ -220,6 +225,7 @@ extension AlbumViewController: UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         collectionView.deselectItem(at: indexPath, animated: true)
         self.tracks[indexPath.row].album = self.album
         PlaybackPresenter.shared.startPlayback(from: self, track: self.tracks[indexPath.row])

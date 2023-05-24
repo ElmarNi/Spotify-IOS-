@@ -140,6 +140,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         let category = categories[indexPath.row]
         let categoryViewController = CategoryViewController(category: category)
         categoryViewController.navigationItem.largeTitleDisplayMode = .never

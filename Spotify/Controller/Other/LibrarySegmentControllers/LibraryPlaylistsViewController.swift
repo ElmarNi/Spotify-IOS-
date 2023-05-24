@@ -109,8 +109,10 @@ extension LibraryPlaylistsViewController{
                 DispatchQueue.main.async {
                     switch result{
                     case true:
+                        HapticsManager.shared.vibrate(for: .success)
                         self?.getPlaylistsData()
                     case false:
+                        HapticsManager.shared.vibrate(for: .error)
                         showAlert(message: "Something went wrong when creating playlist", title: "Error", target: self)
                     }
                 }
@@ -144,14 +146,17 @@ extension LibraryPlaylistsViewController{
                             showAlert(message: "Playlist successfully removed", title: "Success", target: self)
                             self?.playlists.remove(at: indexPath.row)
                             self?.tableView.reloadData()
+                            HapticsManager.shared.vibrate(for: .success)
                         }
                         else {
                             showAlert(message: "Something went wrong when removing playlist", title: "Error", target: self)
+                            HapticsManager.shared.vibrate(for: .error)
                         }
                     }
                 }
             }))
             present(alertController, animated: true)
+            HapticsManager.shared.vibrateForSelection()
         }
     }
     
@@ -188,6 +193,7 @@ extension LibraryPlaylistsViewController: UITableViewDelegate, UITableViewDataSo
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         tableView.deselectRow(at: indexPath, animated: true)
         let playlist = playlists[indexPath.row]
         

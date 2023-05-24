@@ -23,7 +23,8 @@ class PlayerViewController: UIViewController {
     
     private let coverImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -59,11 +60,24 @@ class PlayerViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        coverImageView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: view.width, height: view.width)
+        
+        let nameLabel = dataSource?.name ?? ""
+        let nameLabelHeight = nameLabel.getHeightForLabel(font: UIFont.systemFont(ofSize: 20, weight: .semibold),
+                                    width: (UIScreen.main.bounds.width - 40))
+        
+        let subTitleLabel = dataSource?.subTitle ?? ""
+        let subTitleLabelHeight = subTitleLabel.getHeightForLabel(font: UIFont.systemFont(ofSize: 18, weight: .regular),
+                                    width: (UIScreen.main.bounds.width - 40))
+        
+        let playerControlsHeight = subTitleLabelHeight + nameLabelHeight + 205
+        
         playerControls.frame = CGRect(x: 10,
-                                      y: coverImageView.bottom + 10,
+                                      y: view.height - playerControlsHeight - 10,
                                       width: view.width - 20,
-                                      height: (view.height - coverImageView.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom - 10))
+                                      height: playerControlsHeight)
+        
+        let coverImageViewHeight = view.height - playerControlsHeight - 10 - view.safeAreaInsets.top
+        coverImageView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: view.width, height: coverImageViewHeight)
         activityIndicator.frame = CGRect(x: coverImageView.width / 2, y: coverImageView.height / 2, width: 0, height: 0)
     }
     

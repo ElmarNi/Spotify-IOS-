@@ -109,9 +109,11 @@ class SearchResultViewController: UIViewController {
                             APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) {[weak self] success in
                                 if success {
                                     showAlert(message: "Track successfully added to playlist", title: "Success", target: self)
+                                    HapticsManager.shared.vibrate(for: .success)
                                 }
                                 else {
                                     showAlert(message: "Something went wrong when adding track to playlist", title: "Error", target: self)
+                                    HapticsManager.shared.vibrate(for: .error)
                                 }
                             }
                         }
@@ -119,6 +121,7 @@ class SearchResultViewController: UIViewController {
                     }
                 }))
                 present(alertController, animated: true)
+                HapticsManager.shared.vibrateForSelection()
             default: break
             }
         }
@@ -211,6 +214,7 @@ extension SearchResultViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         let result = sections[indexPath.section].result[indexPath.row]
         delegate?.didTapResult(result)
         tableView.deselectRow(at: indexPath, animated: true)

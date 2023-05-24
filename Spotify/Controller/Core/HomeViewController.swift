@@ -213,9 +213,11 @@ class HomeViewController: UIViewController {
                         APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) {[weak self] success in
                             if success {
                                 showAlert(message: "Track successfully added to playlist", title: "Success", target: self)
+                                HapticsManager.shared.vibrate(for: .success)
                             }
                             else {
                                 showAlert(message: "Something went wrong when adding track to playlist", title: "Error", target: self)
+                                HapticsManager.shared.vibrate(for: .error)
                             }
                         }
                     }
@@ -223,6 +225,7 @@ class HomeViewController: UIViewController {
                 }
             }))
             present(alertController, animated: true)
+            HapticsManager.shared.vibrateForSelection()
         }
     }
     
@@ -286,6 +289,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        HapticsManager.shared.vibrateForSelection()
         collectionView.deselectItem(at: indexPath, animated: true)
         let section = sections[indexPath.section]
         switch section{

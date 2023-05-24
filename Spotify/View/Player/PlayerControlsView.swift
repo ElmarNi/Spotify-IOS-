@@ -158,10 +158,10 @@ final class PlayerControlsView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        setUpNameLabelsUI()
         setUpVolumeUI()
         setUpControlButtonsUI()
         setUpDurationUI()
+        setUpNameLabelsUI()
     }
     
 }
@@ -170,38 +170,44 @@ extension PlayerControlsView {
     
     @objc private func didTapPlayPause(){
         delegate?.playerControlsViewDidTapPlayPauseButton(self)
+        HapticsManager.shared.vibrateForSelection()
     }
     
     @objc private func didTapNext(){
         delegate?.playerControlsViewDidTapNextButton(self)
+        HapticsManager.shared.vibrateForSelection()
     }
     
     @objc private func didTapBack(){
         delegate?.playerControlsViewDidTapBackButton(self)
+        HapticsManager.shared.vibrateForSelection()
     }
     
     @objc private func playBackSliderValueChanged(){
         delegate?.playerControlsViewSliderValueChanged(self, playBackSlider)
+        HapticsManager.shared.vibrateForSelection()
     }
     
     @objc private func didTapVolumeUp(){
         MPVolumeView.shared.volumeUp()
+        HapticsManager.shared.vibrateForSelection()
     }
     
     @objc private func didTapVolumeDown(){
         MPVolumeView.shared.volumeDown()
+        HapticsManager.shared.vibrateForSelection()
     }
     
     @objc private func volumeSliderValueChange(){
         MPVolumeView.shared.setVolume(volumeSlider.value)
+        HapticsManager.shared.vibrateForSelection()
     }
     
     private func setUpDurationUI(){
         currentTimeLabel.sizeToFit()
         overallDurationLabel.sizeToFit()
-        playBackSlider.sizeToFit()
         
-        stackViewDuration.frame = CGRect(x: 0, y: playPauseButton.top - playBackSlider.height - 20, width: width, height: playBackSlider.height)
+        stackViewDuration.frame = CGRect(x: 0, y: playPauseButton.top - 54, width: width, height: 34)
         currentTimeLabel.frame = CGRect(x: 10,
                                         y: (stackViewDuration.height - 20) / 2,
                                         width: 46, height: 20)
@@ -211,7 +217,7 @@ extension PlayerControlsView {
         playBackSlider.frame = CGRect(x: currentTimeLabel.right + 10,
                                       y: (stackViewDuration.height - playBackSlider.height) / 2,
                                       width: stackViewDuration.width - currentTimeLabel.right - overallDurationLabel.width - 30,
-                                      height: playBackSlider.height)
+                                      height: 34)
     }
     
     private func setUpControlButtonsUI(){
@@ -224,23 +230,21 @@ extension PlayerControlsView {
     }
     
     private func setUpVolumeUI(){
-        volumeSlider.sizeToFit()
-        
-        stackViewVolume.frame = CGRect(x: 0, y: height - 50, width: width, height: volumeSlider.height)
+        stackViewVolume.frame = CGRect(x: 0, y: height - 74, width: width, height: 34)
         volumeDown.frame = CGRect(x: 10, y: (stackViewVolume.height - 23) / 2, width: 23, height: 23)
         volumeUp.frame = CGRect(x: stackViewVolume.width - 42, y: (stackViewVolume.height - 23) / 2, width: 32, height: 23)
         volumeSlider.frame = CGRect(x: volumeDown.right + 10,
                                     y: (stackViewVolume.height - volumeSlider.height) / 2,
                                     width: stackViewVolume.width - volumeDown.right - volumeUp.width - 30,
-                                    height: volumeSlider.height)
+                                    height: 34)
     }
     
     private func setUpNameLabelsUI()
     {
         nameLabel.sizeToFit()
         subTitleLabel.sizeToFit()
-
-        nameLabel.frame = CGRect(x: 10, y: 10, width: width - 20, height: min(nameLabel.height, 50))
+        
+        nameLabel.frame = CGRect(x: 10, y: stackViewDuration.top - min(nameLabel.height, 50) - 30, width: width - 20, height: min(nameLabel.height, 50))
         subTitleLabel.frame = CGRect(x: 10, y: nameLabel.bottom, width: width - 20, height: min(subTitleLabel.height, 50))
     }
     
