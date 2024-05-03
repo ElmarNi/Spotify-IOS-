@@ -13,7 +13,7 @@ enum BrowseSectionType{
     case recommendedTracks(viewModels: [RecommendedTracksCellViewModel])
     
     var title: String {
-        switch self{
+        switch self {
         case .newReleases: return "New Relaesed Albums"
         case .featuredPlaylists: return "Featured Playlists"
         case .recommendedTracks: return "Recommended Tracks"
@@ -91,7 +91,7 @@ class HomeViewController: UIViewController {
         
         //MARK: - fetch new releases data
         APICaller.shared.getNewReleases { [weak self] result in
-            defer{
+            defer {
                 dispatchGroup.leave()
             }
             switch result {
@@ -309,12 +309,14 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        
         guard let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
             withReuseIdentifier: TitleHeaderCollectionReusableView.identifier,
             for: indexPath) as? TitleHeaderCollectionReusableView, kind == UICollectionView.elementKindSectionHeader else{
             return UICollectionReusableView()
         }
+        
         let title = sections[indexPath.section].title
         header.configure(with: title)
         return header

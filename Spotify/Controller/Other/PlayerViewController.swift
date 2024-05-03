@@ -95,6 +95,7 @@ class PlayerViewController: UIViewController {
         coverImageView.sd_setImage(with: dataSource?.imageUrl){[weak self] _,_,_,_ in
             self?.activityIndicator.stopAnimating()
         }
+        
         playerControls.configure(with: PlayerControlsViewModel(title: dataSource?.name,
                                                                subTitle: dataSource?.subTitle,
                                                                duration: dataSource?.duration ?? 0))

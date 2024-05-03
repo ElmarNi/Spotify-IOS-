@@ -91,7 +91,6 @@ class AlbumViewController: UIViewController {
     
     @objc private func didTapShare(){
         guard let url = URL(string: album.external_urls["spotify"] ?? "") else { return }
-        
         let customItem = SaveAlbumActivity {
             APICaller.shared.saveAlbum(album: self.album) { [weak self] success in
                 DispatchQueue.main.async {

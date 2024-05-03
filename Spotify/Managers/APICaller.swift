@@ -15,7 +15,7 @@ final class APICaller{
         static let baseUrl: String = "https://api.spotify.com/v1"
     }
     
-    enum APIError: Error{
+    enum APIError: Error {
         case failedToGetData
     }
     
@@ -413,7 +413,7 @@ final class APICaller{
     }
     
     //MARK: - common function for request
-    private func createRequest(with url: URL?, type:HTTPMethod, completion: @escaping (URLRequest) -> Void){
+    private func createRequest(with url: URL?, type: HTTPMethod, completion: @escaping (URLRequest) -> Void){
         AuthManager.shared.withValidToken { token in
             guard let url = url else {return}
             var request = URLRequest(url: url)
